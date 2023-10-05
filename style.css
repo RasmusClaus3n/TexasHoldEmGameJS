@@ -1,0 +1,43 @@
+body {
+  background-color: rgb(29, 77, 40);
+  font-family: 'Pixelify Sans', cursive;
+  font-family: 'Roboto', sans-serif;
+}
+
+.poker-card {
+  min-width: 20px;
+  max-width: 60px;
+}
+
+.community-cards {
+  display: flex;
+  width: 100%; /* Set a fixed width */
+  max-width: 304px; /* Adjust the max width as needed */
+  min-width: 304px;
+  margin: auto;
+}
+
+.player-cards {
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+}
+
+.result {
+  display: flex;
+  justify-content: center;
+}
+
+.result,
+h1 {
+  color: white;
+}
+
+.pkr-btn {
+  display: flex;
+  justify-content: center;
+}
+
+.hidden {
+  display: none;
+}
