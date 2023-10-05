@@ -11,7 +11,7 @@ const comCardsDiv = document.querySelector('.community-cards');
 const playerCardsDiv = document.querySelector('.player-cards');
 
 const pkrBtn = document.querySelector('.pkr-btn button');
-
+//test
 function displayCards(comCards, playerCards) {
   comCardsDiv.innerHTML = '';
   playerCardsDiv.innerHTML = '';
