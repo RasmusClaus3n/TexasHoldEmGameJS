@@ -33,7 +33,9 @@ const pkrBtn = document.querySelector('.pkr-btn button');
 
 let deck = createDeck([]);
 
-createCPUcards(deck);
+let cpuPlayers = createCPUplayers(deck);
+
+console.log(cpuPlayers[0]);
 
 let playerCards = [];
 let comCards = [];
@@ -78,15 +80,20 @@ function displayCards(comCards, playerCards) {
   resultText.textContent = result;
 }
 
-function createCPUcards(deck) {
+function createCPUplayers(deck) {
+  let cpuPlayers = [];
+
   for (let i = 0; i < 2; i++) {
-    let player = new Player();
-    player.setMoney(1000);
-    player.setName(`CPU${i + 1}`);
-    console.log(player.getName());
+    let cpu = new Player();
+    cpu.setMoney(1000);
+    cpu.setName(`CPU${i + 1}`);
     let cpuCards = [];
-    player.setHand(createHand(deck, cpuCards));
+    cpu.setHand(createHand(deck, cpuCards));
+
+    cpuPlayers.push(cpu);
   }
+
+  return cpuPlayers;
 }
 
 function consoleLogging(comCards, playerCards) {

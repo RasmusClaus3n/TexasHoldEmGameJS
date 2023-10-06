@@ -1,5 +1,5 @@
 // These functions all return a boolean value to determine the outcome of a players hand.
-// They all take resultCards as an argument which is a combined array of community cards and player cards
+// They all take resultCards as an argument which is a combined array of community cards and the cards that make out the player hand
 
 function hasOnePair(resultCards) {
   let numPairs = 0; // Helper variable
@@ -137,7 +137,6 @@ function hasLowStraight(resultCards) {
   return false;
 }
 
-// Unoperational function
 function hasStraightFlush(resultCards) {
   resultCards.sort((card1, card2) => card1.getValue() - card2.getValue());
 
