@@ -1,24 +1,53 @@
 import Card from './Card.js';
+import Player from './Player.js';
 import {
   createDeck,
-  createPlayerCards,
+  createHand,
   createFlop,
   createTurnOrRiver,
+  createAceLowStraightComCards,
+  createAceLowStraightPlayerCards,
+  createAceHighStraightComCards,
+  createAceHighStraightPlayerCards,
+  createAceHighStraightFlushComCards,
+  createAceHighStraightFlushPlayerCards,
 } from './DeckManager.js';
 import { scoreCards } from './ScoreHandler.js';
+import {
+  hasOnePair,
+  hasTwoPair,
+  hasThreeOfAKind,
+  hasFlush,
+  hasStraight,
+  hasFourOfAKind,
+  hasStraightFlush,
+  hasLowStraightFlush,
+  hasLowStraight,
+} from './HandEvaluator.js';
 
 const comCardsDiv = document.querySelector('.community-cards');
 const playerCardsDiv = document.querySelector('.player-cards');
+const resultText = document.querySelector('.result h1');
 
 const pkrBtn = document.querySelector('.pkr-btn button');
-//test
+
+let deck = createDeck([]);
+
+createCPUcards(deck);
+
+let playerCards = [];
+let comCards = [];
+createHand(deck, playerCards);
+createFlop(deck, comCards);
+
+displayCards(comCards, playerCards);
+consoleLogging(comCards, playerCards);
+
 function displayCards(comCards, playerCards) {
   comCardsDiv.innerHTML = '';
   playerCardsDiv.innerHTML = '';
 
   for (let card of comCards) {
-    console.log(card.getName() + ' ');
-
     let pokerCardImg = document.createElement('img');
     pokerCardImg.className = 'poker-card';
     pokerCardImg.src = `./cardImages/${card.getName()}.png`;
@@ -36,11 +65,7 @@ function displayCards(comCards, playerCards) {
     comCardsDiv.appendChild(backCardImg);
   }
 
-  console.log('\n');
-
   for (let card of playerCards) {
-    console.log(card.getName() + ' ');
-
     let pokerCardImg = document.createElement('img');
     pokerCardImg.className = 'poker-card';
     pokerCardImg.src = `./cardImages/${card.getName()}.png`;
@@ -48,18 +73,44 @@ function displayCards(comCards, playerCards) {
 
     playerCardsDiv.appendChild(pokerCardImg);
   }
-
-  console.log('\n');
-  console.log(scoreCards(comCards, playerCards));
+  const result = scoreCards(comCards, playerCards);
+  console.log(result);
+  resultText.textContent = result;
 }
 
-let deck = createDeck([]);
+function createCPUcards(deck) {
+  for (let i = 0; i < 2; i++) {
+    let player = new Player();
+    player.setMoney(1000);
+    player.setName(`CPU${i + 1}`);
+    console.log(player.getName());
+    let cpuCards = [];
+    player.setHand(createHand(deck, cpuCards));
+  }
+}
 
-let playerCards = [];
-createPlayerCards(deck, playerCards);
-let comCards = [];
-createFlop(deck, comCards);
-displayCards(comCards, playerCards);
+function consoleLogging(comCards, playerCards) {
+  const resultCards = [...comCards, ...playerCards];
+
+  console.log(`Straight Flush: ${hasStraightFlush(resultCards)}
+  Low Straight Flush: ${hasLowStraightFlush(resultCards)}
+  Four Of A Kind: ${hasFourOfAKind(resultCards)}
+  Straight: ${hasStraight(resultCards)}
+  Low Straight: ${hasLowStraight(resultCards)}
+  Flush: ${hasFlush(resultCards)}
+  Three Of A Kind: ${hasThreeOfAKind(resultCards)}
+  Two Pair: ${hasTwoPair(resultCards)}
+  One Pair: ${hasOnePair(resultCards)}`);
+  for (let card of comCards) {
+    console.log(card.getName() + ' ' + card.getValue());
+  }
+
+  console.log('\n');
+
+  for (let card of playerCards) {
+    console.log(card.getName() + ' ' + card.getValue());
+  }
+}
 
 pkrBtn.addEventListener('click', function () {
   createTurnOrRiver(deck, comCards);
@@ -68,3 +119,11 @@ pkrBtn.addEventListener('click', function () {
     pkrBtn.classList.add('hidden');
   }
 });
+
+// Test purposes:
+// createAceLowStraightPlayerCards(deck, playerCards);
+// createAceLowStraightComCards(deck, comCards);
+// createAceHighStraightPlayerCards(deck, playerCards);
+// createAceHighStraightComCards(deck, comCards);
+// createAceHighStraightFlushPlayerCards(deck, playerCards);
+// createAceHighStraightFlushComCards(deck, comCards);

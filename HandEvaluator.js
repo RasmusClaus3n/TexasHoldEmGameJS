@@ -77,7 +77,7 @@ function hasFlush(resultCards) {
   }
 
   for (let count of suiteCounts.values()) {
-    if (count === 5) {
+    if (count >= 5) {
       return true;
     }
   }
@@ -86,55 +86,58 @@ function hasFlush(resultCards) {
 }
 
 function hasStraight(resultCards) {
-  let hasStraight = false;
-
-  // let straightCards = [];
-  resultCards.sort((card1, card2) => card2.getValue() - card1.getValue());
-
+  let sortedCards = [...resultCards].sort(
+    (card1, card2) => card2.getValue() - card1.getValue()
+  );
   let consecutiveCount = 1;
 
-  for (let i = 1; i < resultCards.length; i++) {
-    let currentVal = resultCards[i].getValue();
-    let prevVal = resultCards[i - 1].getValue();
+  for (let i = 1; i < sortedCards.length; i++) {
+    let currentVal = sortedCards[i].getValue();
+    let prevVal = sortedCards[i - 1].getValue();
 
-    if (currentVal === 14 && prevVal === 2 && i === 1) {
-      currentVal = 1;
+    if (currentVal === prevVal - 1) {
+      consecutiveCount++;
+    } else if (currentVal !== prevVal) {
+      consecutiveCount = 1;
     }
 
-    // if (currentVal === prevVal - 1) {
-    //   straightCards.push(resultCards[i]);
-    //   consecutiveCount++;
-    // } else if (currentVal !== prevVal) {
-    //   consecutiveCount = 1;
-    //   straightCards = [resultCards[i]];
-    // }
+    if (consecutiveCount === 5) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasLowStraight(resultCards) {
+  adjustAces(resultCards);
+
+  let sortedCards = [...resultCards].sort(
+    (card1, card2) => card2.getValue() - card1.getValue()
+  );
+  let consecutiveCount = 1;
+
+  for (let i = 1; i < sortedCards.length; i++) {
+    let currentVal = sortedCards[i].getValue();
+    let prevVal = sortedCards[i - 1].getValue();
+
+    if (currentVal === prevVal - 1) {
+      consecutiveCount++;
+    } else if (currentVal !== prevVal) {
+      consecutiveCount = 1;
+    }
 
     if (consecutiveCount === 5) {
-      hasStraight = true;
-      break;
+      correctAces(resultCards);
+      return true;
     }
   }
 
-  // if (!straightCards.length) {
-  //   return hasStraight;
-  // }
+  correctAces(resultCards);
 
-  // let nextCardValue = straightCards[0].getValue() + 1;
-  // while (straightCards.length < 5) {
-  //   let nextCard = resultCards.find(
-  //     (card) => card.getValue() === nextCardValue
-  //   );
-  //   if (nextCard) {
-  //     straightCards.push(nextCard);
-  //     nextCardValue++;
-  //   } else {
-  //     break;
-  //   }
-  // }
-
-  return hasStraight;
+  return false;
 }
 
+// Unoperational function
 function hasStraightFlush(resultCards) {
   resultCards.sort((card1, card2) => card1.getValue() - card2.getValue());
 
@@ -153,12 +156,61 @@ function hasStraightFlush(resultCards) {
       consecutiveCount = 1;
     }
 
-    if (consecutiveCount === 5) {
+    if (consecutiveCount >= 5) {
       return true;
     }
   }
 
+  correctAces(resultCards);
+
   return false;
+}
+
+function hasLowStraightFlush(resultCards) {
+  adjustAces(resultCards);
+
+  resultCards.sort((card1, card2) => card1.getValue() - card2.getValue());
+
+  let consecutiveCount = 1;
+
+  for (let i = 1; i < resultCards.length; i++) {
+    let currentVal = resultCards[i].getValue();
+    let prevVal = resultCards[i - 1].getValue();
+
+    if (
+      currentVal === prevVal + 1 &&
+      resultCards[i].getSuite() === resultCards[i - 1].getSuite()
+    ) {
+      consecutiveCount++;
+    } else if (currentVal !== prevVal) {
+      consecutiveCount = 1;
+    }
+
+    if (consecutiveCount >= 5) {
+      return true;
+    }
+  }
+
+  correctAces(resultCards);
+
+  return false;
+}
+
+// Helper-function to adjust the value of aces to 1 in case of low straight
+function adjustAces(resultCards) {
+  for (let card of resultCards) {
+    if (card.getValue() === 14) {
+      card.setValue(1);
+    }
+  }
+}
+// Helper-function to assign the value of aces back to 14
+function correctAces(resultCards) {
+  for (let card of resultCards) {
+    if (card.getValue() === 1) {
+      card.setValue(14);
+    }
+  }
 }
 
 export {
@@ -170,4 +222,6 @@ export {
   hasFourOfAKind,
   hasThreeOfAKind,
   hasStraightFlush,
+  hasLowStraightFlush,
+  hasLowStraight,
 };

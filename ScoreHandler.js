@@ -6,49 +6,34 @@ import {
   hasStraight,
   hasFourOfAKind,
   hasStraightFlush,
+  hasLowStraightFlush,
+  hasLowStraight,
 } from './HandEvaluator.js';
-
-const resultText = document.querySelector('.result h1');
 
 function scoreCards(comCards, playerCards) {
   let handValue = 1;
-  let returnMessage = '';
 
   let resultCards = [...comCards, ...playerCards];
 
-  if (hasStraightFlush(resultCards)) {
-    returnMessage = 'Straight Flush';
+  if (hasStraightFlush(resultCards) || hasLowStraightFlush(resultCards)) {
+    return 'Straight Flush';
   } else if (hasFourOfAKind(resultCards)) {
-    returnMessage = 'Four Of A Kind';
+    return 'Four Of A Kind';
   } else if (hasThreeOfAKind(resultCards) && hasOnePair(resultCards)) {
-    returnMessage = 'Full House';
+    return 'Full House';
   } else if (hasFlush(resultCards)) {
-    returnMessage = 'Flush';
+    return 'Flush';
+  } else if (hasLowStraight(resultCards) || hasStraight(resultCards)) {
+    return 'Straight';
   } else if (hasThreeOfAKind(resultCards)) {
-    returnMessage = 'Three Of A Kind';
-  } else if (hasStraight(resultCards)) {
-    returnMessage = 'Straight';
+    return 'Three Of A Kind';
   } else if (hasTwoPair(resultCards)) {
-    returnMessage = 'Two Pair';
+    return 'Two Pair';
   } else if (hasOnePair(resultCards)) {
-    returnMessage = 'Pair';
-  } else {
-    returnMessage = 'High Card';
+    return 'Pair';
   }
 
-  console.log(
-    `Straight Flush ${hasStraightFlush(resultCards)}
-Four Of A Kind: ${hasFourOfAKind(resultCards)}
-Straight: ${hasStraight(resultCards)}
-Flush: ${hasFlush(resultCards)}
-Three Of A Kind: ${hasThreeOfAKind(resultCards)}
-Two Pair: ${hasTwoPair(resultCards)}
-One Pair: ${hasOnePair(resultCards)}`
-  );
-
-  resultText.textContent = returnMessage;
-
-  return returnMessage;
+  return 'High Card';
 }
 
 export { scoreCards };

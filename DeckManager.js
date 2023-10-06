@@ -26,8 +26,8 @@ function createDeck(cards) {
     let value = (i % 13) + 2;
 
     // Special case for aces
-    if (value === 14) {
-      cards[i].setValue(1);
+    if (value === 1) {
+      cards[i].setValue(14);
     } else {
       cards[i].setValue(value);
     }
@@ -56,7 +56,7 @@ function createDeck(cards) {
     }
 
     switch (value) {
-      case 1:
+      case 14:
         card.setName(suite + 'A');
         break;
       case 11:
@@ -77,7 +77,7 @@ function createDeck(cards) {
   return cards; // Returns deck
 }
 
-function createPlayerCards(deck, playerCards) {
+function createHand(deck, playerCards) {
   // Picks two random cards from the deck
   for (let i = 0; i < 2; i++) {
     let randomIndex = Math.floor(Math.random() * 52);
@@ -127,4 +127,74 @@ function createTurnOrRiver(deck, comCards) {
   deck[randomIndex] = null; // Sets picked card to null in deck
 }
 
-export { createDeck, createPlayerCards, createFlop, createTurnOrRiver };
+function createAceLowStraightPlayerCards(deck, playerCards) {
+  playerCards.push(deck[34]);
+  playerCards.push(deck[26]);
+
+  return playerCards; // Returns the player cards
+}
+
+function createAceLowStraightComCards(deck, comCards) {
+  // Picks two random cards from the deck
+
+  comCards.push(deck[12]);
+  comCards.push(deck[13]);
+  comCards.push(deck[14]);
+  comCards.push(deck[15]);
+  comCards.push(deck[29]);
+
+  return comCards; // Returns the player cards
+}
+
+function createAceHighStraightPlayerCards(deck, playerCards) {
+  // Picks two random cards from the deck
+
+  playerCards.push(deck[34]);
+  playerCards.push(deck[13]);
+
+  return playerCards; // Returns the player cards
+}
+
+function createAceHighStraightComCards(deck, comCards) {
+  // Picks two random cards from the deck
+
+  comCards.push(deck[12]);
+  comCards.push(deck[23]);
+  comCards.push(deck[24]);
+  comCards.push(deck[22]);
+  comCards.push(deck[29]);
+
+  return comCards; // Returns the player cards
+}
+
+function createAceHighStraightFlushComCards(deck, comCards) {
+  // Picks two random cards from the deck
+
+  comCards.push(deck[1]);
+  comCards.push(deck[2]);
+  comCards.push(deck[36]);
+  comCards.push(deck[37]);
+  comCards.push(deck[38]);
+
+  return comCards; // Returns the player cards
+}
+
+function createAceHighStraightFlushPlayerCards(deck, playerCards) {
+  playerCards.push(deck[35]);
+  playerCards.push(deck[34]);
+
+  return playerCards; // Returns the player cards
+}
+
+export {
+  createDeck,
+  createHand,
+  createFlop,
+  createTurnOrRiver,
+  createAceLowStraightComCards,
+  createAceLowStraightPlayerCards,
+  createAceHighStraightComCards,
+  createAceHighStraightPlayerCards,
+  createAceHighStraightFlushComCards,
+  createAceHighStraightFlushPlayerCards,
+};
