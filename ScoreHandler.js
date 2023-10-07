@@ -11,29 +11,27 @@ import {
 } from './HandEvaluator.js';
 
 function scoreCards(comCards, playerCards) {
-  let handValue = 1;
-
   let resultCards = [...comCards, ...playerCards];
 
   if (hasStraightFlush(resultCards) || hasLowStraightFlush(resultCards)) {
-    return 'Straight Flush';
+    return 9;
   } else if (hasFourOfAKind(resultCards)) {
-    return 'Four Of A Kind';
+    return 8;
   } else if (hasThreeOfAKind(resultCards) && hasOnePair(resultCards)) {
-    return 'Full House';
+    return 7;
   } else if (hasFlush(resultCards)) {
-    return 'Flush';
+    return 6;
   } else if (hasLowStraight(resultCards) || hasStraight(resultCards)) {
-    return 'Straight';
+    return 5;
   } else if (hasThreeOfAKind(resultCards)) {
-    return 'Three Of A Kind';
+    return 4;
   } else if (hasTwoPair(resultCards)) {
-    return 'Two Pair';
+    return 3;
   } else if (hasOnePair(resultCards)) {
-    return 'Pair';
+    return 2;
   }
 
-  return 'High Card';
+  return 1;
 }
 
 export { scoreCards };

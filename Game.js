@@ -27,6 +27,8 @@ import {
 
 const comCardsDiv = document.querySelector('.community-cards');
 const playerCardsDiv = document.querySelector('.player-cards');
+const cpu1CardsDiv = document.querySelector('#cpu1-cards');
+const cpu2CardsDiv = document.querySelector('#cpu2-cards');
 const resultText = document.querySelector('.result h1');
 
 const pkrBtn = document.querySelector('.pkr-btn button');
@@ -34,20 +36,23 @@ const pkrBtn = document.querySelector('.pkr-btn button');
 let deck = createDeck([]);
 
 let cpuPlayers = createCPUplayers(deck);
+let mainPlayer = createMainPlayer(deck);
 
-console.log(cpuPlayers[0]);
-
-let playerCards = [];
 let comCards = [];
-createHand(deck, playerCards);
 createFlop(deck, comCards);
 
-displayCards(comCards, playerCards);
-consoleLogging(comCards, playerCards);
+setHandValues(mainPlayer, cpuPlayers);
 
-function displayCards(comCards, playerCards) {
+displayToDOM(comCards, mainPlayer, cpuPlayers);
+consoleLogging(comCards, mainPlayer);
+
+function startNewStage() {}
+
+function displayToDOM(comCards, mainPlayer, cpuPlayers) {
   comCardsDiv.innerHTML = '';
   playerCardsDiv.innerHTML = '';
+  cpu1CardsDiv.innerHTML = '';
+  cpu2CardsDiv.innerHTML = '';
 
   for (let card of comCards) {
     let pokerCardImg = document.createElement('img');
@@ -67,7 +72,7 @@ function displayCards(comCards, playerCards) {
     comCardsDiv.appendChild(backCardImg);
   }
 
-  for (let card of playerCards) {
+  for (let card of mainPlayer.getHand()) {
     let pokerCardImg = document.createElement('img');
     pokerCardImg.className = 'poker-card';
     pokerCardImg.src = `./cardImages/${card.getName()}.png`;
@@ -75,9 +80,32 @@ function displayCards(comCards, playerCards) {
 
     playerCardsDiv.appendChild(pokerCardImg);
   }
-  const result = scoreCards(comCards, playerCards);
-  console.log(result);
-  resultText.textContent = result;
+
+  for (let cpu of cpuPlayers) {
+    for (let card of cpu.getHand()) {
+      let pokerCardImg = document.createElement('img');
+      pokerCardImg.className = 'poker-card';
+      pokerCardImg.src = `./cardImages/${card.getName()}.png`;
+      pokerCardImg.alt = '';
+
+      if (cpu.getName() === 'CPU1') {
+        cpu1CardsDiv.appendChild(pokerCardImg);
+      } else if (cpu.getName() === 'CPU2') {
+        cpu2CardsDiv.appendChild(pokerCardImg);
+      }
+    }
+
+    let cpuResultText = document.createElement('h1');
+    cpuResultText.textContent = cpu.getHandValue();
+
+    if (cpu.getName() === 'CPU1') {
+      cpu1CardsDiv.appendChild(cpuResultText);
+    } else if (cpu.getName() === 'CPU2') {
+      cpu2CardsDiv.appendChild(cpuResultText);
+    }
+  }
+
+  resultText.textContent = mainPlayer.getHandValue();
 }
 
 function createCPUplayers(deck) {
@@ -96,8 +124,18 @@ function createCPUplayers(deck) {
   return cpuPlayers;
 }
 
-function consoleLogging(comCards, playerCards) {
-  const resultCards = [...comCards, ...playerCards];
+function createMainPlayer(deck) {
+  let mainPlayer = new Player();
+  mainPlayer.setMoney(1000);
+  mainPlayer.setName('You');
+  let mainPlayerCards = [];
+  mainPlayer.setHand(createHand(deck, mainPlayerCards));
+
+  return mainPlayer;
+}
+
+function consoleLogging(comCards, mainPlayer) {
+  const resultCards = [...comCards, ...mainPlayer.getHand()];
 
   console.log(`Straight Flush: ${hasStraightFlush(resultCards)}
   Low Straight Flush: ${hasLowStraightFlush(resultCards)}
@@ -114,18 +152,26 @@ function consoleLogging(comCards, playerCards) {
 
   console.log('\n');
 
-  for (let card of playerCards) {
+  for (let card of mainPlayer.getHand()) {
     console.log(card.getName() + ' ' + card.getValue());
   }
 }
 
-pkrBtn.addEventListener('click', function () {
-  createTurnOrRiver(deck, comCards);
-  displayCards(comCards, playerCards);
-  if (comCards.length === 5) {
-    pkrBtn.classList.add('hidden');
+function setHandValues(mainPlayer, cpuPlayers) {
+  mainPlayer.setHandValue(scoreCards(comCards, mainPlayer.getHand()));
+  for (let cpu of cpuPlayers) {
+    cpu.setHandValue(scoreCards(comCards, cpu.getHand()));
   }
-});
+}
+
+// pkrBtn.addEventListener('click', function () {
+//   createTurnOrRiver(deck, comCards);
+//   setHandValues(mainPlayer, cpuPlayers);
+//   displayToDOM(comCards, mainPlayer, cpuPlayers);
+//   if (comCards.length === 5) {
+//     pkrBtn.classList.add('hidden');
+//   }
+// });
 
 // Test purposes:
 // createAceLowStraightPlayerCards(deck, playerCards);

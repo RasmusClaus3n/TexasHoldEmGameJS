@@ -1,5 +1,5 @@
 // These functions all return a boolean value to determine the outcome of a players hand.
-// They all take resultCards as an argument which is a combined array of community cards and the cards that make out the player hand
+// They all take resultCards as an argument which is a combined array of community cards and the cards that make out the player/cpu hand
 
 function hasOnePair(resultCards) {
   let numPairs = 0; // Helper variable
@@ -203,7 +203,7 @@ function adjustAces(resultCards) {
     }
   }
 }
-// Helper-function to assign the value of aces back to 14
+// Helper-function to correct the value of aces back to 14
 function correctAces(resultCards) {
   for (let card of resultCards) {
     if (card.getValue() === 1) {
