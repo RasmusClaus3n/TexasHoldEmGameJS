@@ -127,62 +127,17 @@ function createTurnOrRiver(deck, comCards) {
   deck[randomIndex] = null; // Sets picked card to null in deck
 }
 
-function createAceLowStraightPlayerCards(deck, playerCards) {
-  playerCards.push(deck[34]);
-  playerCards.push(deck[26]);
-
-  return playerCards; // Returns the player cards
-}
-
-function createAceLowStraightComCards(deck, comCards) {
-  // Picks two random cards from the deck
-
-  comCards.push(deck[12]);
-  comCards.push(deck[13]);
-  comCards.push(deck[14]);
-  comCards.push(deck[15]);
+function createTestFlop(deck, comCards) {
+  comCards.push(deck[5]);
+  comCards.push(deck[7]);
+  comCards.push(deck[42]);
+  comCards.push(deck[33]);
   comCards.push(deck[29]);
-
-  return comCards; // Returns the player cards
 }
 
-function createAceHighStraightPlayerCards(deck, playerCards) {
-  // Picks two random cards from the deck
-
-  playerCards.push(deck[34]);
-  playerCards.push(deck[13]);
-
-  return playerCards; // Returns the player cards
-}
-
-function createAceHighStraightComCards(deck, comCards) {
-  // Picks two random cards from the deck
-
-  comCards.push(deck[12]);
-  comCards.push(deck[23]);
-  comCards.push(deck[24]);
-  comCards.push(deck[22]);
-  comCards.push(deck[29]);
-
-  return comCards; // Returns the player cards
-}
-
-function createAceHighStraightFlushComCards(deck, comCards) {
-  // Picks two random cards from the deck
-
-  comCards.push(deck[1]);
-  comCards.push(deck[2]);
-  comCards.push(deck[36]);
-  comCards.push(deck[37]);
-  comCards.push(deck[38]);
-
-  return comCards; // Returns the player cards
-}
-
-function createAceHighStraightFlushPlayerCards(deck, playerCards) {
+function createTestHand(deck, playerCards) {
+  playerCards.push(deck[31]);
   playerCards.push(deck[35]);
-  playerCards.push(deck[34]);
-
   return playerCards; // Returns the player cards
 }
 
@@ -191,10 +146,6 @@ export {
   createHand,
   createFlop,
   createTurnOrRiver,
-  createAceLowStraightComCards,
-  createAceLowStraightPlayerCards,
-  createAceHighStraightComCards,
-  createAceHighStraightPlayerCards,
-  createAceHighStraightFlushComCards,
-  createAceHighStraightFlushPlayerCards,
+  createTestFlop,
+  createTestHand,
 };

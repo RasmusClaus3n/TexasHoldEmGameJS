@@ -5,12 +5,8 @@ import {
   createHand,
   createFlop,
   createTurnOrRiver,
-  createAceLowStraightComCards,
-  createAceLowStraightPlayerCards,
-  createAceHighStraightComCards,
-  createAceHighStraightPlayerCards,
-  createAceHighStraightFlushComCards,
-  createAceHighStraightFlushPlayerCards,
+  createTestFlop,
+  createTestHand,
 } from './DeckManager.js';
 import { scoreCards } from './ScoreHandler.js';
 import {
@@ -24,7 +20,7 @@ import {
   hasLowStraightFlush,
   hasLowStraight,
 } from './HandEvaluator.js';
-
+import { rankHandValues } from './DetermineWinner.js';
 const comCardsDiv = document.querySelector('.community-cards');
 const playerCardsDiv = document.querySelector('.player-cards');
 const cpu1CardsDiv = document.querySelector('#cpu1-cards');
@@ -40,11 +36,13 @@ let mainPlayer = createMainPlayer(deck);
 
 let comCards = [];
 createFlop(deck, comCards);
+// createTestFlop(deck, comCards);
 
 setHandValues(mainPlayer, cpuPlayers);
 
 displayToDOM(comCards, mainPlayer, cpuPlayers);
-consoleLogging(comCards, mainPlayer);
+
+rankHandValues(mainPlayer, cpuPlayers);
 
 function startNewStage() {}
 
@@ -130,39 +128,19 @@ function createMainPlayer(deck) {
   mainPlayer.setName('You');
   let mainPlayerCards = [];
   mainPlayer.setHand(createHand(deck, mainPlayerCards));
+  // mainPlayer.setHand(createTestHand(deck, mainPlayerCards));
 
   return mainPlayer;
 }
 
-function consoleLogging(comCards, mainPlayer) {
-  const resultCards = [...comCards, ...mainPlayer.getHand()];
-
-  console.log(`Straight Flush: ${hasStraightFlush(resultCards)}
-  Low Straight Flush: ${hasLowStraightFlush(resultCards)}
-  Four Of A Kind: ${hasFourOfAKind(resultCards)}
-  Straight: ${hasStraight(resultCards)}
-  Low Straight: ${hasLowStraight(resultCards)}
-  Flush: ${hasFlush(resultCards)}
-  Three Of A Kind: ${hasThreeOfAKind(resultCards)}
-  Two Pair: ${hasTwoPair(resultCards)}
-  One Pair: ${hasOnePair(resultCards)}`);
-  for (let card of comCards) {
-    console.log(card.getName() + ' ' + card.getValue());
-  }
-
-  console.log('\n');
-
-  for (let card of mainPlayer.getHand()) {
-    console.log(card.getName() + ' ' + card.getValue());
-  }
-}
-
 function setHandValues(mainPlayer, cpuPlayers) {
-  mainPlayer.setHandValue(scoreCards(comCards, mainPlayer.getHand()));
+  mainPlayer.setHandValue(scoreCards(comCards, mainPlayer));
   for (let cpu of cpuPlayers) {
-    cpu.setHandValue(scoreCards(comCards, cpu.getHand()));
+    cpu.setHandValue(scoreCards(comCards, cpu));
   }
 }
+
+function createPokerCardImg() {}
 
 // pkrBtn.addEventListener('click', function () {
 //   createTurnOrRiver(deck, comCards);

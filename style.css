@@ -17,15 +17,21 @@ body {
   margin: auto;
 }
 
+.cpu-cards-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 80px;
+}
+
 .player-cards-row {
   display: flex;
   justify-content: space-around;
+  margin-top: 80px;
 }
 
 .player-cards {
   display: flex;
   justify-content: center;
-  margin-top: 80px;
 }
 
 .cpu-cards {
