@@ -19,7 +19,7 @@ function rankHandValues(player, cpuPlayers) {
   if (contenders.length === 1) {
     console.log(`${contenders[0].getName()} is the winner ${highestHandValue}`);
   } else {
-    if (highestHandValue === 2) {
+    if (highestHandValue === 3) {
       compareMaxPairs(contenders);
     }
   }
@@ -41,6 +41,8 @@ function compareMaxPairs(contenders) {
 
   highestPairValue = Math.max(...maxPairsArr); // The highest pair value is determined
 
+  console.log('Highest pair value: ' + highestPairValue);
+
   for (const player of contenders) {
     // If there is a player that has the highest pair value (it's always going to be at least one) it gets put in the pairFinalContenders array
 
@@ -54,11 +56,35 @@ function compareMaxPairs(contenders) {
   if (pairFinalContenders.length === 1) {
     // Only one player has the highest pair. No further analyzing is needed.
     playerWithHighestPair = pairFinalContenders[0];
-  } else {
+  } else if (pairFinalContenders.length > 1) {
     // If there's two or more players that have the same high pair we instead determine who has the highest among the second pair (i.e. the lower pair)
+
+    pairFinalContenders = []; // Start with clearing the pairFinalContenders array
 
     for (const player of contenders) {
       minPairsArr.push(Math.min(...player.getPairs()));
+    }
+
+    highestPairValue = Math.max(...minPairsArr); // The highest pair value is determined
+
+    for (const player of contenders) {
+      // We do the same thing as before only look for the min value instead
+      const pairValue = Math.min(...player.getPairs());
+
+      if (pairValue === highestPairValue) {
+        pairFinalContenders.push(player);
+      }
+    }
+
+    if (pairFinalContenders.length === 1) {
+      // Only one player has the highest pair. No further analyzing is needed.
+      playerWithHighestPair = pairFinalContenders[0];
+    } else if (pairFinalContenders.length > 1) {
+      // This means two or more players have the exact same hand so next we determine who has the better kicker.
+
+      // At last we determine that there is a tie and return
+      console.log('TIE');
+      console.log(pairFinalContenders);
     }
   }
 

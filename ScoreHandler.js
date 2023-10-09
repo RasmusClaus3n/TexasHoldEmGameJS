@@ -22,16 +22,6 @@ function scoreCards(comCards, player) {
     hasOnePair(resultCards, player)
   ) {
     return 7;
-  } else if (
-    hasFlush(resultCards, player) &&
-    hasStraight(resultCards, player)
-  ) {
-    return 6;
-  } else if (
-    hasFlush(resultCards, player) &&
-    hasLowStraight(resultCards, player)
-  ) {
-    return 6;
   } else if (hasFlush(resultCards, player)) {
     return 6;
   } else if (
