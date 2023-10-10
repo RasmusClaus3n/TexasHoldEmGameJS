@@ -5,6 +5,8 @@ class Player {
     money,
     handValue,
     handPoints,
+    resultCards,
+    kickers,
     pairs,
     threeOfAKindValue,
     fourOfAKindValue,
@@ -17,6 +19,7 @@ class Player {
     this.money = money;
     this.handValue = handValue;
     this.handPoints = handPoints;
+    this.resultCards = resultCards;
     this.pairs = pairs;
     this.threeOfAKindValue = threeOfAKindValue;
     this.fourOfAKindValue = fourOfAKindValue;
@@ -54,6 +57,18 @@ class Player {
   }
   setHandPoints(handPoints) {
     this.handPoints = handPoints;
+  }
+  getResultCards() {
+    return this.resultCards;
+  }
+  setResultCards(resultCards) {
+    this.resultCards = resultCards;
+  }
+  getKickers() {
+    return this.kickers;
+  }
+  setKickers(kickers) {
+    this.kickers = kickers;
   }
   getPairs() {
     return this.pairs;

@@ -1,6 +1,6 @@
 // These functions all return a boolean value to determine the outcome of a players hand.
 
-// They all take resultCards as an argument which is a combined array of community cards and the cards that make out the player/cpu hand
+// They all take resultCards as an argument which is a combined array of community cards and the cards that make out the player hand
 
 // Besides returning true or false they also calculate the hand value to determine a winner in case of ties
 
@@ -17,6 +17,7 @@ function hasOnePair(resultCards, player) {
   for (let [value, count] of valueCounts) {
     if (count === 2) {
       pairs.push(value);
+      pairs.push(value);
       numPairs++;
     }
   }
@@ -27,7 +28,9 @@ function hasOnePair(resultCards, player) {
     // Keep only the two highest values
     pairs = pairs.slice(0, 2);
     player.setPairs(pairs);
+    player.setKickers(findKickers(resultCards, pairs));
     console.log(`${player.getName()} got one pair: ${player.getPairs()}`);
+    console.log(`${player.getName()} kickers: ${player.getKickers()}`);
   }
 
   return numPairs === 1;
@@ -46,26 +49,23 @@ function hasTwoPair(resultCards, player) {
   for (let [value, count] of valueCounts) {
     if (count === 2) {
       numPairs++;
+      pairs.push(value); // Not the greatest solution
       pairs.push(value);
     }
   }
-
-  // If player has two pairs, sets the values in the player.pairs array. This is used to compare hands later on.
+  //  If player has two pairs, sets the values in the player array.
+  //  This is used to compare hands later on.
   if (numPairs >= 2) {
     // Sort pairs in descending order
     pairs.sort((a, b) => b - a);
-    // Keep only the two highest values since it's not allowed to have more than two pairs in texas hold em
-    pairs = pairs.slice(0, 2);
-    let sum = 0;
-
-    for (let value of pairs) {
-      sum += value;
-    }
-
-    console.log(sum);
+    //  Keep only the two highest pairs since it's not allowed to have more than
+    //  two pairs in texas hold em
+    pairs = pairs.slice(0, 4);
 
     player.setPairs(pairs);
+    player.setKickers(findKickers(resultCards, pairs));
     console.log(`${player.getName()} got two pairs: ${player.getPairs()}`);
+    console.log(`${player.getName()} kickers: ${player.getKickers()}`);
   }
 
   return numPairs >= 2;
@@ -73,7 +73,7 @@ function hasTwoPair(resultCards, player) {
 
 function hasThreeOfAKind(resultCards, player) {
   let valueCounts = new Map();
-  let threeOfAKindValue = 0;
+  let threeOfAKindValues = [];
 
   for (let card of resultCards) {
     let value = card.getValue();
@@ -81,15 +81,22 @@ function hasThreeOfAKind(resultCards, player) {
   }
 
   for (let [value, count] of valueCounts) {
+    // A three of a kind has been detected if count is 3
     if (count === 3) {
-      threeOfAKindValue = value;
-      player.setThreeOfAKindValue(threeOfAKindValue);
+      // Stores all the values that makes up the three of a kind
+      for (let i = 0; i < 3; i++) {
+        threeOfAKindValues.push(value);
+      }
+      player.setThreeOfAKindValue(threeOfAKindValues); // Saves the values into the player array. Used for determening winner and setting kickers.
       console.log(
         `${player.getName()} got three of a kind: ${player.getThreeOfAKindValue()}`
       );
+      player.setKickers(findKickers(resultCards, threeOfAKindValues));
+      console.log('Kickers: ' + player.getKickers());
       return true;
     }
   }
+
   return false;
 }
 
@@ -290,6 +297,30 @@ function correctAces(resultCards) {
     if (card.getValue() === 1) {
       card.setValue(14);
     }
+  }
+}
+
+function findKickers(resultCards, handValues) {
+  // Filter out card values that were used in forming the main hand
+  let unusedValues = resultCards
+    .map((card) => card.getValue())
+    .filter((value) => !handValues.includes(value));
+
+  // Sort the unused card values
+  unusedValues.sort((value1, value2) => value2 - value1);
+
+  // Return the highest unpaired card values (kickers):
+  // Since a poker hand can only contain 5 cards maximum, the amount of kickers
+  // that can possibly be included in the hand is determined by the length of
+  // handValues
+  if (handValues.length === 1) {
+    return unusedValues.slice(0, 4); // Top 4 kickers
+  } else if (handValues.length === 2) {
+    return unusedValues.slice(0, 3); // Top 3 kickers
+  } else if (handValues.length === 3) {
+    return unusedValues.slice(0, 2); // Top 2 kickers
+  } else if (handValues.length === 4) {
+    return unusedValues.slice(0, 1); // Top 1 kicker
   }
 }
 

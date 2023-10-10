@@ -44,7 +44,7 @@ displayToDOM(comCards, mainPlayer, cpuPlayers);
 
 rankHandValues(mainPlayer, cpuPlayers);
 
-function startNewStage() {}
+function startNewStage() {} // TBI
 
 function displayToDOM(comCards, mainPlayer, cpuPlayers) {
   comCardsDiv.innerHTML = '';

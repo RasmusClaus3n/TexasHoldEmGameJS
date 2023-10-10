@@ -4,14 +4,15 @@ import {
   hasThreeOfAKind,
   hasFlush,
   hasStraight,
+  hasLowStraight,
   hasFourOfAKind,
   hasStraightFlush,
   hasLowStraightFlush,
-  hasLowStraight,
 } from './HandEvaluator.js';
 
 function scoreCards(comCards, player) {
   let resultCards = [...comCards, ...player.getHand()];
+  player.setResultCards(resultCards);
 
   if (hasStraightFlush(resultCards) || hasLowStraightFlush(resultCards)) {
     return 9;
