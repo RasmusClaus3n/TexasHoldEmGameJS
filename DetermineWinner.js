@@ -27,22 +27,11 @@ function rankHandValues(player, cpuPlayers) {
   if (contenders.length === 1) {
     // If there's only one player in this array a winner is determined
     winner = contenders[0];
-    if (winner) {
-      console.log('The winner is: ' + winner.getName());
-    }
+    console.log(winner.getName() + ' wins!');
   } else if (contenders.length > 1) {
     // Else things get complicated
     if (highestHandValue === 3) {
-      winner = comparePairs(contenders);
-
-      if (Array.isArray(winner)) {
-        console.log("It's a tie! Winners: ");
-        for (const player of winner) {
-          console.log(player.getName());
-        }
-      } else if (!Array.isArray(winner)) {
-        console.log(winner.getName() + ' is le winner');
-      }
+      comparePairs(contenders);
     }
   }
 }
@@ -59,6 +48,7 @@ function comparePairs(contenders) {
     player.setLowPairValue(Math.min(...player.getUniquePairs()));
   });
 
+  // Check if all players have the same high pair value
   if (
     contenders.every(
       (player) => player.getHighPairValue() === contenders[0].getHighPairValue()
@@ -68,6 +58,26 @@ function comparePairs(contenders) {
     console.log('identical high pairs');
   }
 
+  if (!isHighPairTie) {
+    const highestHighPairValue = Math.max(
+      ...contenders.map((player) => player.getHighPairValue())
+    );
+
+    contenders = contenders.filter(
+      (player) => player.getHighPairValue() === highestHighPairValue
+    );
+
+    if (contenders.length === 1) {
+      winner = contenders[0];
+      console.log(winner.getName() + ' has the higehst pair');
+      // return winner;
+    } else {
+      console.log('Players with the highest high pair value:', contenders);
+      //check low pairs
+    }
+  }
+
+  // Check if all players have the same low pair value
   if (
     contenders.every(
       (player) => player.getLowPairValue() === contenders[0].getLowPairValue()
@@ -77,27 +87,14 @@ function comparePairs(contenders) {
     console.log('identical low pairs');
   }
 
-  if (isHighPairTie) {
-    if (!isLowPairTie) {
-      winner = contenders.reduce((prev, current) => {
-        if (prev.getHighPairValue() === current.getHighPairValue()) {
-          return prev.getLowPairValue() > current.getLowPairValue()
-            ? prev
-            : current;
-        }
-        return prev.getHighPairValue() > current.getHighPairValue()
-          ? prev
-          : current;
-      });
-    }
+  if (!isLowPairTie) {
   }
 
   if (isHighPairTie && isLowPairTie) {
-    console.log("It's a tie between the pairs");
     return compareKickers(contenders);
   }
 
-  return winner;
+  // Now you can use isHighPairTie and isLowPairTie for further processing
 }
 
 // Compare kicker values in case of ties
