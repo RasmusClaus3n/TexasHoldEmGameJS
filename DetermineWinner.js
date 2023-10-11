@@ -38,6 +38,7 @@ function rankHandValues(player, cpuPlayers) {
 
 function comparePairs(contenders) {
   console.log('comparing pairs...');
+
   let winner;
   let isHighPairTie = false;
   let isLowPairTie = false;
@@ -69,9 +70,10 @@ function comparePairs(contenders) {
 
     if (contenders.length === 1) {
       winner = contenders[0];
-      console.log(winner.getName() + ' has the higehst pair');
+      console.log(winner.getName() + ' has the highest high pair');
       // return winner;
     } else {
+      isHighPairTie = true;
       console.log('Players with the highest high pair value:', contenders);
       //check low pairs
     }
@@ -99,19 +101,18 @@ function comparePairs(contenders) {
       );
       if (contenders.length === 1) {
         winner = contenders[0];
-        console.log(winner.getName() + ' has the higehst pair');
+        console.log(winner.getName() + ' has the higehst low pair');
         // return winner;
       } else {
+        isLowPairTie = true;
         console.log('Players with the highest low pair value:', contenders);
       }
     }
   }
 
   if (isHighPairTie && isLowPairTie) {
-    return compareKickers(contenders);
+    compareKickers(contenders);
   }
-
-  // Now you can use isHighPairTie and isLowPairTie for further processing
 }
 
 // Compare kicker values in case of ties
