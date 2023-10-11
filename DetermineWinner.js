@@ -40,7 +40,7 @@ function rankHandValues(player, cpuPlayers) {
         for (const player of winner) {
           console.log(player.getName());
         }
-      } else {
+      } else if (!Array.isArray(winner)) {
         console.log(winner.getName() + ' is le winner');
       }
     }
@@ -48,6 +48,7 @@ function rankHandValues(player, cpuPlayers) {
 }
 
 function comparePairs(contenders) {
+  console.log('comparing pairs...');
   let winner;
   let isHighPairTie = false;
   let isLowPairTie = false;
@@ -64,6 +65,7 @@ function comparePairs(contenders) {
     )
   ) {
     isHighPairTie = true;
+    console.log('identical high pairs');
   }
 
   if (
@@ -72,6 +74,7 @@ function comparePairs(contenders) {
     )
   ) {
     isLowPairTie = true;
+    console.log('identical low pairs');
   }
 
   if (isHighPairTie) {
@@ -90,7 +93,7 @@ function comparePairs(contenders) {
   }
 
   if (isHighPairTie && isLowPairTie) {
-    console.log("It's a tie!");
+    console.log("It's a tie between the pairs");
     return compareKickers(contenders);
   }
 
@@ -110,7 +113,7 @@ function compareKickers(contenders) {
     }
   }
 
-  console.log("It's a tie!");
+  console.log("It's a tie between the kickers");
   return contenders;
 }
 
