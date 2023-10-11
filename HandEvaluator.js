@@ -253,7 +253,7 @@ function hasStraightFlush(resultCards, player) {
 
     if (consecutiveCount >= 5) {
       straightFlushValues.sort((a, b) => b - a); // Sort in descending order
-      straightFlushValues = straightValues.slice(0, 5); // Take the top 5 cards
+      straightFlushValues = straightFlushValues.slice(0, 5); // Take the top 5 cards
       player.setStraightFlushValue(straightFlushValues);
       console.log(
         `${player.getName()} got an ace high straight flush: ${player.getStraightFlushValue()}`
@@ -292,7 +292,7 @@ function hasLowStraightFlush(resultCards, player) {
 
     if (consecutiveCount >= 5) {
       straightFlushValues.sort((a, b) => b - a); // Sort in descending order
-      straightFlushValues = straightValues.slice(0, 5); // Take the top 5 cards
+      straightFlushValues = straightFlushValues.slice(0, 5); // Take the top 5 cards
       player.setStraightFlushValue(straightFlushValues);
       return true;
     }

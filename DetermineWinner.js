@@ -3,36 +3,53 @@ import Player from './Player.js';
 let isWinner = false;
 
 function rankHandValues(player, cpuPlayers) {
-  let allHandValues = []; // Helper array to gather all handRanks
-  let allPlayers = [player, ...cpuPlayers];
-  let winner;
-
-  for (let player of allPlayers) {
-    allHandValues.push(player.getHandValue()); // Gathers all handRanks in one array
-  }
-
-  const highestHandValue = Math.max(...allHandValues); // Determines the highest handRank
-
-  console.log('Highest hand rank: ' + highestHandValue);
-
+  const allPlayers = [player, ...cpuPlayers];
+  const allHandValues = allPlayers.map((player) => player.getHandValue());
+  const highestHandValue = Math.max(...allHandValues);
   const contenders = allPlayers.filter(
-    // Sets an array that contains all the players who has the highest handRank
     (player) => player.getHandValue() === highestHandValue
   );
 
-  console.log('Highest hand rank after filter: ' + highestHandValue);
-
-  console.log('contenders.length: ' + contenders.length);
-
   if (contenders.length === 1) {
-    // If there's only one player in this array a winner is determined
-    winner = contenders[0];
-    console.log(winner.getName() + ' wins!');
-  } else if (contenders.length > 1) {
-    // Else things get complicated
-    if (highestHandValue === 3) {
+    const winner = contenders[0];
+    console.log(`${winner.getName()} wins!`);
+    return winner;
+  }
+
+  // Additional checks for specific highestHandValue scenarios
+  switch (highestHandValue) {
+    case 1:
+      console.log('High Card Tie');
+      break;
+    case 2:
+      console.log('One Pair Tie');
+      break;
+    case 3:
+      console.log('Two Pairs Tie');
       comparePairs(contenders);
-    }
+      break;
+    case 4:
+      console.log('Three Of A Kind Tie');
+      break;
+    case 5:
+      console.log('Straight Tie');
+      break;
+    case 6:
+      console.log('Flush Tie');
+      break;
+    case 7:
+      console.log('Full House Tie');
+      break;
+    case 8:
+      console.log('Four Of A Kind Tie');
+      break;
+    case 9:
+      console.log('Straight Flush Tie');
+      break;
+    // Add more cases as needed
+    default:
+      console.log('Unknown highestHandValue');
+      break;
   }
 }
 
@@ -119,17 +136,39 @@ function comparePairs(contenders) {
 function compareKickers(contenders) {
   console.log('comparing kickers...');
 
-  for (let i = 0; i < contenders[0].kickers.length; i++) {
-    const firstPlayerKicker = contenders[0].kickers[i];
+  let winner;
+  let isTie = true;
 
-    if (contenders.some((player) => player.kickers[i] !== firstPlayerKicker)) {
-      contenders.sort((a, b) => b.kickers[i] - a.kickers[i]);
-      return contenders[0];
+  for (let i = 0; i < contenders[0].getKickers().length; i++) {
+    const highestKickerValue = Math.max(
+      ...contenders.map((player) => player.getKickers()[i])
+    );
+
+    if (
+      contenders.every(
+        (player) => player.getKickers()[i] === highestKickerValue
+      )
+    ) {
+      isTie = true; // All players have the same kicker at index 'i'
+    } else {
+      isTie = false; // There's a player with a higher kicker at index 'i'
+      winner = contenders.find(
+        (player) => player.getKickers()[i] === highestKickerValue
+      );
+      break;
     }
   }
 
-  console.log("It's a tie between the kickers");
-  return contenders;
+  if (!isTie) {
+    console.log(winner.getName() + ' is the winner');
+    return winner;
+  } else {
+    console.log('After comparing kickers it is a tie between:');
+    for (const player of contenders) {
+      console.log(player.getName());
+    }
+    return contenders;
+  }
 }
 
 export { rankHandValues };
