@@ -8,6 +8,9 @@ class Player {
     resultCards,
     kickers,
     pairs,
+    uniquePairs,
+    highPairValue,
+    lowPairValue,
     threeOfAKindValue,
     fourOfAKindValue,
     straightValue,
@@ -20,7 +23,11 @@ class Player {
     this.handValue = handValue;
     this.handPoints = handPoints;
     this.resultCards = resultCards;
+    this.kickers = kickers;
     this.pairs = pairs;
+    this.uniquePairs = uniquePairs;
+    this.highPairValue = highPairValue;
+    this.lowPairValue = lowPairValue;
     this.threeOfAKindValue = threeOfAKindValue;
     this.fourOfAKindValue = fourOfAKindValue;
     this.straightValue = straightValue;
@@ -75,6 +82,24 @@ class Player {
   }
   setPairs(pairs) {
     this.pairs = pairs;
+  }
+  getUniquePairs() {
+    return this.uniquePairs;
+  }
+  setUniquePairs(uniquePairs) {
+    this.uniquePairs = uniquePairs;
+  }
+  getHighPairValue() {
+    return this.highPairValue;
+  }
+  setHighPairValue(highPairValue) {
+    this.highPairValue = highPairValue;
+  }
+  getLowPairValue() {
+    return this.lowPairValue;
+  }
+  setLowPairValue(lowPairValue) {
+    this.lowPairValue = lowPairValue;
   }
   getThreeOfAKindValue() {
     return this.threeOfAKindValue;

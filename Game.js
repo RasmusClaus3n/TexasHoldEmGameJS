@@ -30,6 +30,7 @@ const resultText = document.querySelector('.result h1');
 const pkrBtn = document.querySelector('.pkr-btn button');
 
 let deck = createDeck([]);
+shuffleDeck(deck);
 
 let cpuPlayers = createCPUplayers(deck);
 let mainPlayer = createMainPlayer(deck);
@@ -137,6 +138,13 @@ function setHandValues(mainPlayer, cpuPlayers) {
   mainPlayer.setHandValue(scoreCards(comCards, mainPlayer));
   for (let cpu of cpuPlayers) {
     cpu.setHandValue(scoreCards(comCards, cpu));
+  }
+}
+
+function shuffleDeck(deck) {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
   }
 }
 

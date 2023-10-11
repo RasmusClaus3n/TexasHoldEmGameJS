@@ -3,142 +3,135 @@ import Player from './Player.js';
 let isWinner = false;
 
 function rankHandValues(player, cpuPlayers) {
-  let allHandValues = [];
+  let allHandValues = []; // Helper array to gather all handRanks
   let allPlayers = [player, ...cpuPlayers];
   let winner;
 
   for (let player of allPlayers) {
-    allHandValues.push(player.getHandValue());
+    allHandValues.push(player.getHandValue()); // Gathers all handRanks in one array
   }
 
-  const highestHandValue = Math.max(...allHandValues);
+  const highestHandValue = Math.max(...allHandValues); // Determines the highest handRank
+
+  console.log('Highest hand rank: ' + highestHandValue);
 
   const contenders = allPlayers.filter(
+    // Sets an array that contains all the players who has the highest handRank
     (player) => player.getHandValue() === highestHandValue
   );
 
+  console.log('Highest hand rank after filter: ' + highestHandValue);
+
+  console.log('contenders.length: ' + contenders.length);
+
   if (contenders.length === 1) {
-    console.log(`${contenders[0].getName()} is the winner ${highestHandValue}`);
-  } else {
+    // If there's only one player in this array a winner is determined
+    winner = contenders[0];
+    if (winner) {
+      console.log('The winner is: ' + winner.getName());
+    }
+  } else if (contenders.length > 1) {
+    // Else things get complicated
     if (highestHandValue === 3) {
-      console.log('hello');
+      winner = comparePairs(contenders);
+
+      if (Array.isArray(winner)) {
+        console.log("It's a tie! Winners: ");
+        for (const player of winner) {
+          console.log(player.getName());
+        }
+      } else {
+        winner = comparePairs(contenders);
+        console.log(winner.getName() + ' is le winner');
+      }
     }
   }
 }
 
 function comparePairs(contenders) {
-  let isTie = false;
+  let winner;
+  let isHighPairTie = false;
+  let isLowPairTie = false;
 
-  let highestPairValue = 0;
-  let playerWithHighestPair; // This will be the winner if there's not a tie
+  // Loops through all the players and create arrays that are destructured sets
+  // No duplicates are allowed so we get the unique pair values
+  contenders.forEach((player) => {
+    player.setUniquePairs([...new Set(player.getPairs())]);
+    // Gets max value in uniquePairs array and set it to highPairValue
+    player.setHighPairValue(Math.max(...player.getUniquePairs()));
+    // Do the same for min value and set it to lowPairValue attribute
+    player.setLowPairValue(Math.min(...player.getUniquePairs()));
+  });
 
-  let maxPairsArr = []; // This will contain the highest pair value between the two pairs
-  let minPairsArr = []; // This will contain the lowest pair value between the two pairs
+  // Find the player with the highest highPairValue
+  winner = contenders.reduce((prev, current) =>
+    prev.getHighPairValue() > current.getHighPairValue() ? prev : current
+  );
 
-  let tiedPlayers = []; // If there is two or more players that has the same pair they will be placed here
-
-  for (const player of contenders) {
-    // Takes the highest pair value and puts them in the maxPairsArr
-    maxPairsArr.push(Math.max(...player.getPairs()));
+  if (
+    contenders.every(
+      (player) => player.getHighPairValue() === winner.getHighPairValue()
+    )
+  ) {
+    console.log('All players have the same high pair value');
+    isHighPairTie = true;
   }
 
-  highestPairValue = Math.max(...maxPairsArr); // The highest pair value is determined
-
-  console.log('Highest pair value: ' + highestPairValue);
-
-  for (const player of contenders) {
-    // If there is a player that has the highest pair value (it's always going to be at least one) it gets put in the tiedPlayers array
-
-    const pairValue = Math.max(...player.getPairs());
-
-    if (pairValue === highestPairValue) {
-      tiedPlayers.push(player);
-    }
+  // Find the player with the highest lowPairValue
+  if (!isHighPairTie) {
+    winner = contenders.reduce((prev, current) =>
+      prev.getLowPairValue() > current.getLowPairValue() ? prev : current
+    );
   }
 
-  if (tiedPlayers.length === 1) {
-    // Only one player has the highest pair. No further analyzing is needed.
-    playerWithHighestPair = tiedPlayers[0];
-    console.log('Winner: ' + playerWithHighestPair.getName());
-  } else if (tiedPlayers.length > 1) {
-    // If there's two or more players that have the same high pair we
-    // instead determine who has the highest second pair
-    // (i.e. the lower pair)
+  if (
+    contenders.every(
+      (player) => player.getLowPairValue() === winner.getLowPairValue()
+    )
+  ) {
+    console.log('All players have the same low pair value');
+    isLowPairTie = true;
+  }
 
-    tiedPlayers = []; // Start with clearing the tiedPlayers array
+  if (isHighPairTie && isLowPairTie) {
+    console.log("It's a tie!");
+    return compareKickers(contenders);
+  }
+
+  return winner;
+}
+
+// Compare kicker values in case of ties
+function compareKickers(contenders) {
+  console.log('comparing kickers...');
+  let isTie = true; // Assuming it's a tie by default
+
+  // To compare with all kicker values with each other we loop over the players x amount of times where x is kickers.length. It is assumed that all players have the same amount of kickers in this situation.
+  for (let i = 0; i < contenders[0].kickers.length; i++) {
+    const firstPlayerKicker = contenders[0].kickers[i]; // Used to compare with the kickers of other players.
 
     for (const player of contenders) {
-      minPairsArr.push(Math.min(...player.getPairs()));
-    }
-
-    highestPairValue = Math.max(...minPairsArr); // The highest pair value is determined
-
-    for (const player of contenders) {
-      // We do the same thing as before only look for the min value instead
-      const pairValue = Math.min(...player.getPairs());
-
-      if (pairValue === highestPairValue) {
-        tiedPlayers.push(player);
+      if (player.kickers[i] !== firstPlayerKicker) {
+        // This will determine if all kickers are the same
+        isTie = false; // If not there's not a tie and we break out of the loop
+        break;
       }
     }
 
-    if (tiedPlayers.length === 1) {
-      // Only one player has the highest pair. No further analyzing is needed.
-      playerWithHighestPair = tiedPlayers[0];
-    } else if (tiedPlayers.length > 1) {
-      // Two or more players have the exact same two pairs so we determine who has the better kicker/kickers.
-
-      for (const player of tiedPlayers) {
-        let maxPairValue = Math.max(...player.getPairs());
-        let minPairValue = Math.min(...player.getPairs());
-
-        let resultCardsValues = [];
-        let sum = 0;
-
-        for (const card of player.getResultCards()) {
-          resultCardsValues.push(card.getValue());
-        }
-
-        for (let i = resultCardsValues.length - 1; i >= 0; i--) {
-          if (
-            resultCardsValues[i] === maxPairValue ||
-            resultCardsValues[i] === minPairValue
-          ) {
-            resultCardsValues.splice(i, 1);
-          }
-        }
-
-        for (const value of resultCardsValues) {
-          sum += value;
-        }
-
-        player.setHandPoints(sum);
-        console.log(player.getName() + ' sum:' + player.getHandPoints());
-      }
-
-      playerWithHighestPair = tiedPlayers[0]; // Assuming the first player is the winner for now
-
-      for (const player of tiedPlayers) {
-        if (player.getHandPoints() > playerWithHighestPair.getHandPoints()) {
-          playerWithHighestPair = player; // If a player has a higher hand points that player has the best kickers. A winner is determined.
-        }
-      }
-
-      isTie = tiedPlayers.every(
-        // Two or more player has the same kickers. No further tie breakers are applied and we determine there is a tie.
-        (player) =>
-          player.getHandPoints() === playerWithHighestPair.getHandPoints()
+    if (!isTie) {
+      console.log('Not a tie');
+      // If it's determined that there's not a tie we compare the kicker values
+      contenders.sort(
+        (playerA, playerB) => playerA.kickers[i] - playerB.kickers[i]
       );
-    }
-
-    if (isTie) {
-      console.log(tiedPlayers);
-      return console.log('TIE');
+      return contenders[0];
     }
   }
-  console.log(playerWithHighestPair.getName() + ' wins');
-  console.log(playerWithHighestPair);
-  return playerWithHighestPair;
+
+  if (isTie) {
+    console.log("It's a tie!");
+    return contenders;
+  }
 }
 
 export { rankHandValues };

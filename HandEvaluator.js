@@ -102,7 +102,7 @@ function hasThreeOfAKind(resultCards, player) {
 
 function hasFourOfAKind(resultCards, player) {
   let valueCounts = new Map();
-  let fourOfAKindValue = 0;
+  let fourOfAKindValues = [];
   for (let card of resultCards) {
     let value = card.getValue();
     valueCounts.set(value, (valueCounts.get(value) || 0) + 1);
@@ -110,11 +110,15 @@ function hasFourOfAKind(resultCards, player) {
 
   for (let [value, count] of valueCounts) {
     if (count === 4) {
-      fourOfAKindValue = value;
-      player.setFourOfAKindValue(fourOfAKindValue);
+      for (let i = 0; i < 4; i++) {
+        fourOfAKindValues.push(value);
+      }
+      player.setFourOfAKindValue(fourOfAKindValues);
+      player.setKickers(findKickers(resultCards, fourOfAKindValues));
       console.log(
         `${player.getName()} got four of a kind: ${player.getFourOfAKindValue()}`
       );
+      console.log('Kickers: ' + player.getKickers());
       return true;
     }
   }
@@ -139,7 +143,13 @@ function hasFlush(resultCards, player) {
           flushValues.push(card.getValue());
         }
       }
+      flushValues.sort((a, b) => b - a); // Sort in descending order
+      flushValues = flushValues.slice(0, 5); // Take the top 5 cards
+
       player.setFlushValue(flushValues);
+
+      // No need to set the kickers since a five card poker hand is already
+      // set in case of a flush
       console.log(`${player.getName()} got a flush: ${player.getFlushValue()}`);
       return true;
     }
@@ -168,7 +178,11 @@ function hasStraight(resultCards, player) {
     }
 
     if (consecutiveCount === 5) {
-      player.setStraightValue(Math.max(...straightValues));
+      straightValues.sort((a, b) => b - a); // Sort in descending order
+      straightValues = straightValues.slice(0, 5); // Take the top 5 cards
+      player.setStraightValue(straightValues);
+
+      // No need so set kickers since a straight makes out a five card hand
       console.log(
         `${player.getName()} got an ace high straight: ${player.getStraightValue()}`
       );
@@ -200,7 +214,9 @@ function hasLowStraight(resultCards, player) {
     }
 
     if (consecutiveCount === 5) {
-      player.setStraightValue(Math.max(...straightValues));
+      straightValues.sort((a, b) => b - a); // Sort in descending order
+      straightValues = straightValues.slice(0, 5); // Take the top 5 cards
+      player.setStraightValue(straightValues);
       console.log(
         `${player.getName()} got a straight: ${player.getStraightValue()}`
       );
@@ -236,7 +252,9 @@ function hasStraightFlush(resultCards, player) {
     }
 
     if (consecutiveCount >= 5) {
-      player.setStraightFlushValue(Math.max(...straightFlushValues));
+      straightFlushValues.sort((a, b) => b - a); // Sort in descending order
+      straightFlushValues = straightValues.slice(0, 5); // Take the top 5 cards
+      player.setStraightFlushValue(straightFlushValues);
       console.log(
         `${player.getName()} got an ace high straight flush: ${player.getStraightFlushValue()}`
       );
@@ -273,7 +291,9 @@ function hasLowStraightFlush(resultCards, player) {
     }
 
     if (consecutiveCount >= 5) {
-      player.setStraightFlushValue(Math.max(...straightFlushValues));
+      straightFlushValues.sort((a, b) => b - a); // Sort in descending order
+      straightFlushValues = straightValues.slice(0, 5); // Take the top 5 cards
+      player.setStraightFlushValue(straightFlushValues);
       return true;
     }
   }
@@ -335,4 +355,5 @@ export {
   hasStraightFlush,
   hasLowStraightFlush,
   hasLowStraight,
+  findKickers,
 };
