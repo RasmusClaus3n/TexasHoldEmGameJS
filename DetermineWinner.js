@@ -64,7 +64,7 @@ function comparePairs(contenders) {
     );
 
     contenders = contenders.filter(
-      (player) => player.getHighPairValue() === highestHighPairValue
+      (player) => player.getHighPairValue() === highestHighPairValue // Filters the array to contain only players with the highest pair value
     );
 
     if (contenders.length === 1) {
@@ -77,17 +77,34 @@ function comparePairs(contenders) {
     }
   }
 
-  // Check if all players have the same low pair value
-  if (
-    contenders.every(
-      (player) => player.getLowPairValue() === contenders[0].getLowPairValue()
-    )
-  ) {
-    isLowPairTie = true;
-    console.log('identical low pairs');
-  }
+  if (isHighPairTie) {
+    console.log('this runs');
+    if (
+      contenders.every(
+        (player) => player.getLowPairValue() === contenders[0].getLowPairValue()
+      )
+    ) {
+      isLowPairTie = true;
+      console.log('identical low pairs');
+    }
 
-  if (!isLowPairTie) {
+    if (!isLowPairTie) {
+      console.log('There is not a tie between the low pairs');
+      const highestLowPairValue = Math.max(
+        ...contenders.map((player) => player.getLowPairValue())
+      );
+
+      contenders = contenders.filter(
+        (player) => player.getLowPairValue() === highestLowPairValue // Filters the array to contain only players with the highest low pair value
+      );
+      if (contenders.length === 1) {
+        winner = contenders[0];
+        console.log(winner.getName() + ' has the higehst pair');
+        // return winner;
+      } else {
+        console.log('Players with the highest low pair value:', contenders);
+      }
+    }
   }
 
   if (isHighPairTie && isLowPairTie) {
