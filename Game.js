@@ -25,15 +25,23 @@ const comCardsDiv = document.querySelector('.community-cards');
 const playerCardsDiv = document.querySelector('.player-cards');
 const cpu1CardsDiv = document.querySelector('#cpu1-cards');
 const cpu2CardsDiv = document.querySelector('#cpu2-cards');
-const resultText = document.querySelector('.result h1');
 
+const cpuCardsRowDiv = document.querySelector('.cpu-cards-row');
+
+const resultText = document.querySelector('.result h1');
 const pkrBtn = document.querySelector('.pkr-btn button');
+
+//TEST
+const cpu3CardsDiv = document.querySelector('#cpu3-cards');
+const playerNameDiv = document.querySelector('.player-name');
+//TEST
 
 let deck = createDeck([]);
 shuffleDeck(deck);
 
 let cpuPlayers = createCPUplayers(deck);
 let mainPlayer = createMainPlayer(deck);
+let winner;
 
 let comCards = [];
 createFlop(deck, comCards);
@@ -43,7 +51,16 @@ setHandValues(mainPlayer, cpuPlayers);
 
 displayToDOM(comCards, mainPlayer, cpuPlayers);
 
-rankHandValues(mainPlayer, cpuPlayers);
+winner = rankHandValues(mainPlayer, cpuPlayers);
+
+if (Array.isArray(winner)) {
+  console.log('Tied winners!: ');
+  for (const player of winner) {
+    console.log(player.getName());
+  }
+} else {
+  console.log(winner.getName() + ' wins');
+}
 
 function startNewStage() {} // TBI
 
@@ -103,6 +120,23 @@ function displayToDOM(comCards, mainPlayer, cpuPlayers) {
       cpu2CardsDiv.appendChild(cpuResultText);
     }
   }
+
+  // let pokerCardImg666 = document.createElement('img');
+  // pokerCardImg666.className = 'poker-card';
+  // pokerCardImg666.src = `./cardImages/joker1.png`;
+  // pokerCardImg666.alt = '';
+
+  // let pokerCardImg66 = document.createElement('img');
+  // pokerCardImg66.className = 'poker-card';
+  // pokerCardImg66.src = `./cardImages/joker2.png`;
+  // pokerCardImg66.alt = '';
+
+  // let testText = document.createElement('h3');
+  // testText.textContent = 'CPU3';
+
+  // cpu3CardsDiv.appendChild(pokerCardImg666);
+  // cpu3CardsDiv.appendChild(pokerCardImg66);
+  // playerNameDiv.appendChild(testText);
 
   resultText.textContent = mainPlayer.getHandValue();
 }

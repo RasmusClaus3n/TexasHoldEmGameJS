@@ -26,7 +26,7 @@ function rankHandValues(player, cpuPlayers) {
       break;
     case 3:
       console.log('Two Pairs Tie');
-      comparePairs(contenders);
+      return comparePairs(contenders);
       break;
     case 4:
       console.log('Three Of A Kind Tie');
@@ -88,11 +88,9 @@ function comparePairs(contenders) {
     if (contenders.length === 1) {
       winner = contenders[0];
       console.log(winner.getName() + ' has the highest high pair');
-      // return winner;
+      return winner;
     } else {
       isHighPairTie = true;
-      console.log('Players with the highest high pair value:', contenders);
-      //check low pairs
     }
   }
 
@@ -119,7 +117,7 @@ function comparePairs(contenders) {
       if (contenders.length === 1) {
         winner = contenders[0];
         console.log(winner.getName() + ' has the higehst low pair');
-        // return winner;
+        return winner;
       } else {
         isLowPairTie = true;
         console.log('Players with the highest low pair value:', contenders);
@@ -128,7 +126,7 @@ function comparePairs(contenders) {
   }
 
   if (isHighPairTie && isLowPairTie) {
-    compareKickers(contenders);
+    return compareKickers(contenders);
   }
 }
 

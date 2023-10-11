@@ -1,7 +1,7 @@
 body {
   background-color: rgb(29, 77, 40);
-  font-family: 'Pixelify Sans', cursive;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Silkscreen', sans-serif;
+  color: white;
 }
 
 .poker-card {
@@ -21,6 +21,17 @@ body {
   display: flex;
   justify-content: space-around;
   margin-bottom: 80px;
+  margin-top: 80px;
+}
+
+.cpu-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.player-name {
+  margin-top: 10px;
 }
 
 .player-cards-row {
@@ -34,11 +45,10 @@ body {
   justify-content: center;
 }
 
-.cpu-cards {
+/* .cpu-cards {
   display: flex;
   justify-content: center;
-  margin-top: 80px;
-}
+} */
 
 .result {
   display: flex;
