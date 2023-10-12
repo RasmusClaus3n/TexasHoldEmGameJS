@@ -20,7 +20,7 @@ import {
   hasLowStraightFlush,
   hasLowStraight,
 } from './HandEvaluator.js';
-import { rankHandValues } from './DetermineWinner.js';
+import { rankHandRanks } from './DetermineWinner.js';
 import { displayToDOM } from './DOMhandler.js';
 
 let deck = createDeck([]);
@@ -34,11 +34,11 @@ let comCards = [];
 createFlop(deck, comCards);
 // createTestFlop(deck, comCards);
 
-setHandValues(mainPlayer, cpuPlayers);
+setHandRanks(mainPlayer, cpuPlayers);
 
 displayToDOM(comCards, mainPlayer, cpuPlayers);
 
-winner = rankHandValues(mainPlayer, cpuPlayers);
+winner = rankHandRanks(mainPlayer, cpuPlayers);
 
 if (Array.isArray(winner)) {
   console.log('Tied winners!: ');
@@ -78,10 +78,10 @@ function createMainPlayer(deck) {
   return mainPlayer;
 }
 
-function setHandValues(mainPlayer, cpuPlayers) {
-  mainPlayer.setHandValue(scoreCards(comCards, mainPlayer));
+function setHandRanks(mainPlayer, cpuPlayers) {
+  mainPlayer.setHandRank(scoreCards(comCards, mainPlayer));
   for (let cpu of cpuPlayers) {
-    cpu.setHandValue(scoreCards(comCards, cpu));
+    cpu.setHandRank(scoreCards(comCards, cpu));
   }
 }
 
@@ -94,7 +94,7 @@ function shuffleDeck(deck) {
 
 // pkrBtn.addEventListener('click', function () {
 //   createTurnOrRiver(deck, comCards);
-//   setHandValues(mainPlayer, cpuPlayers);
+//   setHandRanks(mainPlayer, cpuPlayers);
 //   displayToDOM(comCards, mainPlayer, cpuPlayers);
 //   if (comCards.length === 5) {
 //     pkrBtn.classList.add('hidden');

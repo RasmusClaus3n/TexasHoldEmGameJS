@@ -3,7 +3,7 @@ class Player {
     name,
     hand,
     money,
-    handValue,
+    handRank,
     handRankName,
     handPoints,
     resultCards,
@@ -21,7 +21,7 @@ class Player {
     this.name = name;
     this.hand = hand;
     this.money = money;
-    this.handValue = handValue;
+    this.handRank = handRank;
     this.handRankName = handRankName;
     this.handPoints = handPoints;
     this.resultCards = resultCards;
@@ -55,11 +55,11 @@ class Player {
   setMoney(money) {
     this.money = money;
   }
-  getHandValue() {
-    return this.handValue;
+  getHandRank() {
+    return this.handRank;
   }
-  setHandValue(handValue) {
-    this.handValue = handValue;
+  setHandRank(handRank) {
+    this.handRank = handRank;
   }
   getHandRankName() {
     return this.handRankName;

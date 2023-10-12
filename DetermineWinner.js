@@ -2,12 +2,12 @@ import Player from './Player.js';
 
 let isWinner = false;
 
-function rankHandValues(player, cpuPlayers) {
+function rankHandRanks(player, cpuPlayers) {
   const allPlayers = [player, ...cpuPlayers];
-  const allHandValues = allPlayers.map((player) => player.getHandValue());
-  const highestHandValue = Math.max(...allHandValues);
+  const allHandRanks = allPlayers.map((player) => player.getHandRank());
+  const highestHandRank = Math.max(...allHandRanks);
   const contenders = allPlayers.filter(
-    (player) => player.getHandValue() === highestHandValue
+    (player) => player.getHandRank() === highestHandRank
   );
 
   if (contenders.length === 1) {
@@ -16,8 +16,8 @@ function rankHandValues(player, cpuPlayers) {
     return winner;
   }
 
-  // Additional checks for specific highestHandValue scenarios
-  switch (highestHandValue) {
+  // Additional checks for specific highestHandRank scenarios
+  switch (highestHandRank) {
     case 1:
       console.log('High Card Tie');
       break;
@@ -48,7 +48,7 @@ function rankHandValues(player, cpuPlayers) {
       break;
     // Add more cases as needed
     default:
-      console.log('Unknown highestHandValue');
+      console.log('Unknown highestHandRank');
       break;
   }
 }
@@ -169,4 +169,4 @@ function compareKickers(contenders) {
   }
 }
 
-export { rankHandValues };
+export { rankHandRanks };
