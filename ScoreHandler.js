@@ -46,24 +46,26 @@ function scoreCards(comCards, player) {
     player.setHandRankName('One Pair');
     return 2;
   }
-  setHighCard(resultCards, player);
-  player.setKickers(findKickers(resultCards, player.getHandValue(), player));
+
+  // BAD
+  const highCard = setHighCard(resultCards, player);
+  player.setHandRankName('High Card');
+  player.setKickers(findKickers(resultCards, highCard, player));
   return 1;
 }
 
+// BAD
 function setHighCard(resultCards, player) {
-  const cardVals = [];
+  let cardVals = [];
 
   resultCards.forEach((card) => {
     cardVals.push(card.getValue());
   });
 
   const highCard = Math.max(...cardVals);
-
-  player.setHandRankName('High Card');
-  player.setHandValue([]);
-  player.getHandValue().push(highCard);
-  console.log(player.getHandValue());
+  cardVals = [];
+  cardVals.push(highCard);
+  return cardVals;
 }
 
 export { scoreCards };
