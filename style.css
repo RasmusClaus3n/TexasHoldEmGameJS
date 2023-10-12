@@ -2,26 +2,54 @@ body {
   background-color: rgb(29, 77, 40);
   font-family: 'Silkscreen', sans-serif;
   color: white;
+  text-align: center;
+  margin: 0;
 }
 
+@media (max-width: 768px) {
+  /* Styles for smaller screens go here */
+}
+
+.texasHoldEm-container {
+  max-width: 1200px; /* Adjust as needed */
+  margin: auto;
+  padding: 20px;
+}
+
+/* @keyframes slideAndFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} */
+
 .poker-card {
-  min-width: 20px;
-  max-width: 60px;
+  max-width: 66px;
+  /* opacity: 0;
+  animation: slideAndFadeIn 0.5s ease-in-out;
+  animation-fill-mode: forwards; This keeps the end state of the animation */
 }
 
 .community-cards {
-  display: flex;
-  width: 100%; /* Set a fixed width */
-  max-width: 304px; /* Adjust the max width as needed */
-  min-width: 304px;
+  display: inline-flex;
   margin: auto;
+  justify-content: center;
 }
 
-.cpu-cards-row {
+.cpu-players-row {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 80px;
-  margin-top: 80px;
+  margin-bottom: 40px;
+}
+
+.player-cards-row {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
 }
 
 .cpu-col {
@@ -30,25 +58,24 @@ body {
   align-items: center;
 }
 
-.player-name {
-  margin-top: 10px;
-}
+/* .player-name {
+  
+} */
 
-.player-cards-row {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 80px;
+/* .mp-name {
+} */
+
+.player-hand-rank {
+  color: greenyellow !important;
+  -webkit-text-stroke-width: 0.1px;
+  -webkit-text-stroke-color: black;
+  font-size: 12px;
 }
 
 .player-cards {
   display: flex;
   justify-content: center;
 }
-
-/* .cpu-cards {
-  display: flex;
-  justify-content: center;
-} */
 
 .result {
   display: flex;

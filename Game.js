@@ -21,20 +21,7 @@ import {
   hasLowStraight,
 } from './HandEvaluator.js';
 import { rankHandValues } from './DetermineWinner.js';
-const comCardsDiv = document.querySelector('.community-cards');
-const playerCardsDiv = document.querySelector('.player-cards');
-const cpu1CardsDiv = document.querySelector('#cpu1-cards');
-const cpu2CardsDiv = document.querySelector('#cpu2-cards');
-
-const cpuCardsRowDiv = document.querySelector('.cpu-cards-row');
-
-const resultText = document.querySelector('.result h1');
-const pkrBtn = document.querySelector('.pkr-btn button');
-
-//TEST
-const cpu3CardsDiv = document.querySelector('#cpu3-cards');
-const playerNameDiv = document.querySelector('.player-name');
-//TEST
+import { displayToDOM } from './DOMhandler.js';
 
 let deck = createDeck([]);
 shuffleDeck(deck);
@@ -63,83 +50,6 @@ if (Array.isArray(winner)) {
 }
 
 function startNewStage() {} // TBI
-
-function displayToDOM(comCards, mainPlayer, cpuPlayers) {
-  comCardsDiv.innerHTML = '';
-  playerCardsDiv.innerHTML = '';
-  cpu1CardsDiv.innerHTML = '';
-  cpu2CardsDiv.innerHTML = '';
-
-  for (let card of comCards) {
-    let pokerCardImg = document.createElement('img');
-    pokerCardImg.className = 'poker-card';
-    pokerCardImg.src = `./cardImages/${card.getName()}.png`;
-    pokerCardImg.alt = '';
-
-    comCardsDiv.appendChild(pokerCardImg);
-  }
-
-  for (let i = 1; i < 6 - comCards.length; i++) {
-    let backCardImg = document.createElement('img');
-    backCardImg.className = 'poker-card';
-    backCardImg.src = './cardImages/back_blue.png';
-    backCardImg.alt = '';
-
-    comCardsDiv.appendChild(backCardImg);
-  }
-
-  for (let card of mainPlayer.getHand()) {
-    let pokerCardImg = document.createElement('img');
-    pokerCardImg.className = 'poker-card';
-    pokerCardImg.src = `./cardImages/${card.getName()}.png`;
-    pokerCardImg.alt = '';
-
-    playerCardsDiv.appendChild(pokerCardImg);
-  }
-
-  for (let cpu of cpuPlayers) {
-    for (let card of cpu.getHand()) {
-      let pokerCardImg = document.createElement('img');
-      pokerCardImg.className = 'poker-card';
-      pokerCardImg.src = `./cardImages/${card.getName()}.png`;
-      pokerCardImg.alt = '';
-
-      if (cpu.getName() === 'CPU1') {
-        cpu1CardsDiv.appendChild(pokerCardImg);
-      } else if (cpu.getName() === 'CPU2') {
-        cpu2CardsDiv.appendChild(pokerCardImg);
-      }
-    }
-
-    let cpuResultText = document.createElement('h1');
-    cpuResultText.textContent = cpu.getHandValue();
-
-    if (cpu.getName() === 'CPU1') {
-      cpu1CardsDiv.appendChild(cpuResultText);
-    } else if (cpu.getName() === 'CPU2') {
-      cpu2CardsDiv.appendChild(cpuResultText);
-    }
-  }
-
-  // let pokerCardImg666 = document.createElement('img');
-  // pokerCardImg666.className = 'poker-card';
-  // pokerCardImg666.src = `./cardImages/joker1.png`;
-  // pokerCardImg666.alt = '';
-
-  // let pokerCardImg66 = document.createElement('img');
-  // pokerCardImg66.className = 'poker-card';
-  // pokerCardImg66.src = `./cardImages/joker2.png`;
-  // pokerCardImg66.alt = '';
-
-  // let testText = document.createElement('h3');
-  // testText.textContent = 'CPU3';
-
-  // cpu3CardsDiv.appendChild(pokerCardImg666);
-  // cpu3CardsDiv.appendChild(pokerCardImg66);
-  // playerNameDiv.appendChild(testText);
-
-  resultText.textContent = mainPlayer.getHandValue();
-}
 
 function createCPUplayers(deck) {
   let cpuPlayers = [];
@@ -181,8 +91,6 @@ function shuffleDeck(deck) {
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
 }
-
-function createPokerCardImg() {}
 
 // pkrBtn.addEventListener('click', function () {
 //   createTurnOrRiver(deck, comCards);

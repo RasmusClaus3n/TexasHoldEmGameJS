@@ -4,6 +4,7 @@ class Player {
     hand,
     money,
     handValue,
+    handRankName,
     handPoints,
     resultCards,
     kickers,
@@ -21,6 +22,7 @@ class Player {
     this.hand = hand;
     this.money = money;
     this.handValue = handValue;
+    this.handRankName = handRankName;
     this.handPoints = handPoints;
     this.resultCards = resultCards;
     this.kickers = kickers;
@@ -58,6 +60,12 @@ class Player {
   }
   setHandValue(handValue) {
     this.handValue = handValue;
+  }
+  getHandRankName() {
+    return this.handRankName;
+  }
+  setHandRankName(handRankName) {
+    this.handRankName = handRankName;
   }
   getHandPoints() {
     return this.handPoints;
