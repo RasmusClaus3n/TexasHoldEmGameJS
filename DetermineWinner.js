@@ -7,26 +7,29 @@ function rankHandRanks(player, cpuPlayers) {
   const allHandRanks = allPlayers.map((player) => player.getHandRank());
   const highestHandRank = Math.max(...allHandRanks);
   const contenders = allPlayers.filter(
+    // Exclude players who doesn't have highest hand rank
     (player) => player.getHandRank() === highestHandRank
   );
 
   if (contenders.length === 1) {
+    // Only one player in contenders = winner
     const winner = contenders[0];
     console.log(`${winner.getName()} wins!`);
     return winner;
   }
 
-  // Additional checks for specific highestHandRank scenarios
+  // Else compare hands
   switch (highestHandRank) {
     case 1:
       console.log('High Card Tie');
       break;
     case 2:
       console.log('One Pair Tie');
+      return compareOnePair(contenders);
       break;
     case 3:
       console.log('Two Pairs Tie');
-      return comparePairs(contenders);
+      return compareTwoPairs(contenders);
       break;
     case 4:
       console.log('Three Of A Kind Tie');
@@ -53,21 +56,55 @@ function rankHandRanks(player, cpuPlayers) {
   }
 }
 
-function comparePairs(contenders) {
-  console.log('comparing pairs...');
+function compareOnePair(contenders) {
+  console.log('Comparing one pairs...');
+
+  let winner;
+  let isPairTie = false;
+
+  setHighAndLowPairValue(contenders);
+
+  if (
+    // Check if all players have the same high pair value
+    contenders.every(
+      (player) => player.getHighPairValue() === contenders[0].getHighPairValue()
+    )
+  ) {
+    isPairTie = true;
+    console.log('identical high pairs');
+  }
+
+  if (!isPairTie) {
+    const highestHighPairValue = Math.max(
+      // What the higehst pair value is
+      ...contenders.map((player) => player.getHighPairValue())
+    );
+
+    contenders = contenders.filter(
+      (player) => player.getHighPairValue() === highestHighPairValue // Include only players with the highest pair value
+    );
+
+    if (contenders.length === 1) {
+      winner = contenders[0];
+      console.log(winner.getName() + ' has the highest one pair');
+      return winner;
+    } else {
+      compareKickers(contenders);
+    }
+  }
+}
+
+function compareTwoPairs(contenders) {
+  console.log('Comparing two pairs...');
 
   let winner;
   let isHighPairTie = false;
   let isLowPairTie = false;
 
-  contenders.forEach((player) => {
-    player.setUniquePairs([...new Set(player.getPairs())]);
-    player.setHighPairValue(Math.max(...player.getUniquePairs()));
-    player.setLowPairValue(Math.min(...player.getUniquePairs()));
-  });
+  setHighAndLowPairValue(contenders);
 
-  // Check if all players have the same high pair value
   if (
+    // Check if all players have the same high pair value
     contenders.every(
       (player) => player.getHighPairValue() === contenders[0].getHighPairValue()
     )
@@ -78,11 +115,12 @@ function comparePairs(contenders) {
 
   if (!isHighPairTie) {
     const highestHighPairValue = Math.max(
+      // What the higehst pair value is
       ...contenders.map((player) => player.getHighPairValue())
     );
 
     contenders = contenders.filter(
-      (player) => player.getHighPairValue() === highestHighPairValue // Filters the array to contain only players with the highest pair value
+      (player) => player.getHighPairValue() === highestHighPairValue // Include only players with the highest pair value
     );
 
     if (contenders.length === 1) {
@@ -95,6 +133,7 @@ function comparePairs(contenders) {
   }
 
   if (isHighPairTie) {
+    // Compare players second pair (low pairs)
     console.log('this runs');
     if (
       contenders.every(
@@ -112,7 +151,7 @@ function comparePairs(contenders) {
       );
 
       contenders = contenders.filter(
-        (player) => player.getLowPairValue() === highestLowPairValue // Filters the array to contain only players with the highest low pair value
+        (player) => player.getLowPairValue() === highestLowPairValue
       );
       if (contenders.length === 1) {
         winner = contenders[0];
@@ -126,9 +165,23 @@ function comparePairs(contenders) {
   }
 
   if (isHighPairTie && isLowPairTie) {
+    // It's a tie
     return compareKickers(contenders);
   }
 }
+
+function setHighAndLowPairValue(contenders) {
+  contenders.forEach((player) => {
+    player.setUniquePairs([...new Set(player.getPairs())]); // Remove duplicates to make comparisons easier
+    player.setHighPairValue(Math.max(...player.getUniquePairs()));
+    if (player.getPairs().length == 2) {
+      // If two pairs
+      player.setLowPairValue(Math.min(...player.getUniquePairs()));
+    }
+  });
+}
+
+function compareHighPairs(contenders) {}
 
 // Compare kicker values in case of ties
 function compareKickers(contenders) {
