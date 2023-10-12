@@ -8,6 +8,7 @@ import {
   hasFourOfAKind,
   hasStraightFlush,
   hasLowStraightFlush,
+  findKickers,
 } from './HandEvaluator.js';
 
 function scoreCards(comCards, player) {
@@ -45,9 +46,24 @@ function scoreCards(comCards, player) {
     player.setHandRankName('One Pair');
     return 2;
   }
+  setHighCard(resultCards, player);
+  player.setKickers(findKickers(resultCards, player.getHandValue(), player));
+  return 1;
+}
+
+function setHighCard(resultCards, player) {
+  const cardVals = [];
+
+  resultCards.forEach((card) => {
+    cardVals.push(card.getValue());
+  });
+
+  const highCard = Math.max(...cardVals);
 
   player.setHandRankName('High Card');
-  return 1;
+  player.setHandValue([]);
+  player.getHandValue().push(highCard);
+  console.log(player.getHandValue());
 }
 
 export { scoreCards };

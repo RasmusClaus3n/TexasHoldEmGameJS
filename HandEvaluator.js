@@ -28,7 +28,7 @@ function hasOnePair(resultCards, player) {
     // Keep only the two highest values
     pairs = pairs.slice(0, 2);
     player.setPairs(pairs);
-    player.setKickers(findKickers(resultCards, pairs));
+    player.setKickers(findKickers(resultCards, pairs, player));
     console.log(`${player.getName()} got one pair: ${player.getPairs()}`);
     console.log(`${player.getName()} kickers: ${player.getKickers()}`);
   }
@@ -63,7 +63,7 @@ function hasTwoPair(resultCards, player) {
     pairs = pairs.slice(0, 4);
 
     player.setPairs(pairs);
-    player.setKickers(findKickers(resultCards, pairs));
+    player.setKickers(findKickers(resultCards, pairs, player));
     console.log(`${player.getName()} got two pairs: ${player.getPairs()}`);
     console.log(`${player.getName()} kickers: ${player.getKickers()}`);
   }
@@ -91,7 +91,7 @@ function hasThreeOfAKind(resultCards, player) {
       console.log(
         `${player.getName()} got three of a kind: ${player.getThreeOfAKindValue()}`
       );
-      player.setKickers(findKickers(resultCards, threeOfAKindValues));
+      player.setKickers(findKickers(resultCards, threeOfAKindValues, player));
       console.log('Kickers: ' + player.getKickers());
       return true;
     }
@@ -320,28 +320,32 @@ function correctAces(resultCards) {
   }
 }
 
-function findKickers(resultCards, handValues) {
+function findKickers(resultCards, handValues, player) {
   // Filter out card values that were used in forming the main hand
-  let unusedValues = resultCards
-    .map((card) => card.getValue())
-    .filter((value) => !handValues.includes(value));
 
-  // Sort the unused card values
-  unusedValues.sort((value1, value2) => value2 - value1);
+  if (!player.getKickers()) {
+    let unusedValues = resultCards
+      .map((card) => card.getValue())
+      .filter((value) => !handValues.includes(value));
 
-  // Return the highest unpaired card values (kickers):
-  // Since a poker hand can only contain 5 cards maximum, the amount of kickers
-  // that can possibly be included in the hand is determined by the length of
-  // handValues
-  if (handValues.length === 1) {
-    return unusedValues.slice(0, 4); // Top 4 kickers
-  } else if (handValues.length === 2) {
-    return unusedValues.slice(0, 3); // Top 3 kickers
-  } else if (handValues.length === 3) {
-    return unusedValues.slice(0, 2); // Top 2 kickers
-  } else if (handValues.length === 4) {
-    return unusedValues.slice(0, 1); // Top 1 kicker
+    // Sort the unused card values
+    unusedValues.sort((value1, value2) => value2 - value1);
+
+    // Return the highest unpaired card values (kickers):
+    // Since a poker hand can only contain 5 cards maximum, the amount of kickers
+    // that can possibly be included in the hand is determined by the length of
+    // handValues
+    if (handValues.length === 1) {
+      return unusedValues.slice(0, 4); // Top 4 kickers
+    } else if (handValues.length === 2) {
+      return unusedValues.slice(0, 3); // Top 3 kickers
+    } else if (handValues.length === 3) {
+      return unusedValues.slice(0, 2); // Top 2 kickers
+    } else if (handValues.length === 4) {
+      return unusedValues.slice(0, 1); // Top 1 kicker
+    }
   }
+  return;
 }
 
 export {
