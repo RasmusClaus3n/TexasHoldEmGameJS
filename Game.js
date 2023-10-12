@@ -7,6 +7,8 @@ import {
   createTurnOrRiver,
   createTestFlop,
   createTestHand,
+  createTestHand2,
+  createTestHand3,
 } from './DeckManager.js';
 import { scoreCards } from './ScoreHandler.js';
 import {
@@ -40,6 +42,8 @@ displayToDOM(comCards, mainPlayer, cpuPlayers);
 
 winner = rankHandRanks(mainPlayer, cpuPlayers);
 
+console.log(winner);
+
 if (Array.isArray(winner)) {
   console.log('Tied winners!: ');
   for (const player of winner) {
@@ -60,6 +64,12 @@ function createCPUplayers(deck) {
     cpu.setName(`CPU${i + 1}`);
     let cpuCards = [];
     cpu.setHand(createHand(deck, cpuCards));
+    // if (cpu.getName() === 'CPU1') {
+    //   cpu.setHand(createTestHand2(deck, cpuCards));
+    // }
+    // if (cpu.getName() === 'CPU2') {
+    //   cpu.setHand(createTestHand3(deck, cpuCards));
+    // }
 
     cpuPlayers.push(cpu);
   }

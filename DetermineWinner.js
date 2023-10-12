@@ -25,7 +25,7 @@ function rankHandRanks(player, cpuPlayers) {
       break;
     case 2:
       console.log('One Pair Tie');
-      return compareOnePair(contenders);
+      return compareOnePairs(contenders);
       break;
     case 3:
       console.log('Two Pairs Tie');
@@ -33,9 +33,11 @@ function rankHandRanks(player, cpuPlayers) {
       break;
     case 4:
       console.log('Three Of A Kind Tie');
+      return compareThreeOfAKinds(contenders);
       break;
     case 5:
       console.log('Straight Tie');
+      return compareStraights(contenders);
       break;
     case 6:
       console.log('Flush Tie');
@@ -56,7 +58,7 @@ function rankHandRanks(player, cpuPlayers) {
   }
 }
 
-function compareOnePair(contenders) {
+function compareOnePairs(contenders) {
   console.log('Comparing one pairs...');
 
   let winner;
@@ -71,7 +73,7 @@ function compareOnePair(contenders) {
     )
   ) {
     isPairTie = true;
-    console.log('identical high pairs');
+    console.log('Identical pairs');
   }
 
   if (!isPairTie) {
@@ -89,8 +91,13 @@ function compareOnePair(contenders) {
       console.log(winner.getName() + ' has the highest one pair');
       return winner;
     } else {
-      compareKickers(contenders);
+      isPairTie = true;
     }
+  }
+
+  if (isPairTie) {
+    console.log("It's a pair tie");
+    return compareKickers(contenders);
   }
 }
 
@@ -110,7 +117,7 @@ function compareTwoPairs(contenders) {
     )
   ) {
     isHighPairTie = true;
-    console.log('identical high pairs');
+    console.log('Identical high pairs');
   }
 
   if (!isHighPairTie) {
@@ -134,14 +141,18 @@ function compareTwoPairs(contenders) {
 
   if (isHighPairTie) {
     // Compare players second pair (low pairs)
-    console.log('this runs');
+    for (const player of contenders) {
+      console.log(
+        player.getName() + "'s low pair value: " + player.getLowPairValue()
+      );
+    }
     if (
       contenders.every(
         (player) => player.getLowPairValue() === contenders[0].getLowPairValue()
       )
     ) {
       isLowPairTie = true;
-      console.log('identical low pairs');
+      console.log('Identical low pairs');
     }
 
     if (!isLowPairTie) {
@@ -170,56 +181,199 @@ function compareTwoPairs(contenders) {
   }
 }
 
+function compareThreeOfAKinds(contenders) {
+  console.log('Comparing three of a kind...');
+
+  let winner;
+  let isTie = false;
+
+  contenders.forEach((player) => {
+    player.setThreeOfAKindValue([...new Set(player.getThreeOfAKindValue())]);
+  });
+
+  if (
+    // Check if all players have the same three of a kind
+    contenders.every(
+      (player) =>
+        player.getThreeOfAKindValue()[0] ===
+        contenders[0].getThreeOfAKindValue()
+    )
+  ) {
+    isTie = true;
+    console.log('Identical three of a kinds');
+  }
+
+  if (!isTie) {
+    const highestThreeOfAKindValue = Math.max(
+      // What the higehst three of a kind value is
+      ...contenders.map((player) => player.getThreeOfAKindValue()[0])
+    );
+
+    contenders = contenders.filter(
+      (player) => player.getThreeOfAKindValue()[0] === highestThreeOfAKindValue // Include only players with the highest three of a kind value
+    );
+
+    if (contenders.length === 1) {
+      winner = contenders[0];
+      console.log(winner.getName() + ' has the highest high pair');
+      return winner;
+    } else {
+      isTie = true;
+    }
+  }
+
+  if (isTie) {
+    console.log(contenders[0] + ' this runs :|');
+    return compareKickers(contenders);
+  }
+}
+
+function compareStraights(contenders) {
+  console.log('Comparing straights...');
+
+  let winner;
+  let isStraightTie = false;
+
+  if (
+    // Check if all players have the same straight
+    contenders.every(
+      (player) =>
+        player.getStraightValue()[0] === contenders[0].getStraightValue()[0]
+    )
+  ) {
+    isStraightTie = true;
+    console.log('Identical straights');
+  }
+
+  if (!isStraightTie) {
+    const highestStraightValue = Math.max(
+      // What the higehst straight value is
+      ...contenders.map((player) => player.getStraightValue()[0])
+    );
+
+    contenders = contenders.filter(
+      (player) => player.getStraightValue()[0] === highestStraightValue // Include only players with the highest straight value
+    );
+
+    if (contenders.length === 1) {
+      winner = contenders[0];
+      console.log(winner.getName() + ' has the highest straight');
+      return winner;
+    } else {
+      // No need to check for kickers since a straight = full poker hand
+      return contenders;
+    }
+  }
+}
+
+// Compare kicker values in case of ties
+function compareKickers(contenders) {
+  console.log('Comparing kickers...');
+
+  let winner;
+  let isTie = true;
+  let highestKickerValue = 0;
+  let kickersLength = contenders[0].getKickers().length; // Assumes all players have same kickers.length
+
+  if (
+    contenders.every(
+      (player) =>
+        JSON.stringify(player.getKickers()) ===
+        JSON.stringify(contenders[0].getKickers())
+    )
+  ) {
+    console.log('All players kickers were the same');
+    return contenders; // It's a tie
+  }
+
+  for (let i = 0; i < kickersLength; i++) {
+    const highestValue = Math.max(
+      ...contenders.map((player) => player.getKickers()[i])
+    );
+    highestKickerValue = Math.max(highestValue, highestKickerValue);
+  }
+
+  console.log('Highest kicker value:' + highestKickerValue);
+
+  contenders = contenders.filter(
+    (player) => player.getKickers()[0] === highestKickerValue // Only include players who has this value
+  );
+
+  if (contenders.length === 1) {
+    // If only one player = winner
+    return contenders[0];
+  }
+
+  const remainingKickersLength = contenders[0].getKickers().length;
+
+  // Maybe only need this part?
+  for (let i = 0; i < remainingKickersLength; i++) {
+    let maxKickerValue = Math.max(
+      ...contenders.map((player) => player.getKickers()[i])
+    );
+
+    contenders = contenders.filter(
+      (player) => player.getKickers()[i] === maxKickerValue
+    );
+
+    if (contenders.length === 1) {
+      return contenders[0];
+    }
+  }
+  return contenders;
+}
+
+function yeOld() {
+  function compareKickers(contenders) {
+    console.log('Comparing kickers...');
+
+    let winner;
+    let isTie = true;
+
+    for (let i = 0; i < contenders[0].getKickers().length; i++) {
+      const highestKickerValue = Math.max(
+        ...contenders.map((player) => player.getKickers()[i])
+      );
+
+      if (
+        contenders.every(
+          (player) => player.getKickers()[i] === contenders[0].getKickers()[i]
+        )
+      ) {
+        isTie = true; // All players have the same kicker at index 'i'
+      } else {
+        // There's a player with a higher kicker at index 'i'
+        winner = contenders.find(
+          (player) => player.getKickers()[i] === highestKickerValue
+        );
+        if (contenders.length === 1) {
+          return winner;
+        }
+      }
+    }
+
+    if (!isTie) {
+      console.log(winner.getName() + ' is the winner');
+      return winner;
+    } else {
+      console.log('After comparing kickers it is a tie between:');
+      for (const player of contenders) {
+        console.log(player.getName());
+      }
+      return contenders;
+    }
+  }
+}
+
 function setHighAndLowPairValue(contenders) {
   contenders.forEach((player) => {
     player.setUniquePairs([...new Set(player.getPairs())]); // Remove duplicates to make comparisons easier
     player.setHighPairValue(Math.max(...player.getUniquePairs()));
-    if (player.getPairs().length == 2) {
+    if (player.getPairs().length == 4) {
       // If two pairs
       player.setLowPairValue(Math.min(...player.getUniquePairs()));
     }
   });
-}
-
-function compareHighPairs(contenders) {}
-
-// Compare kicker values in case of ties
-function compareKickers(contenders) {
-  console.log('comparing kickers...');
-
-  let winner;
-  let isTie = true;
-
-  for (let i = 0; i < contenders[0].getKickers().length; i++) {
-    const highestKickerValue = Math.max(
-      ...contenders.map((player) => player.getKickers()[i])
-    );
-
-    if (
-      contenders.every(
-        (player) => player.getKickers()[i] === highestKickerValue
-      )
-    ) {
-      isTie = true; // All players have the same kicker at index 'i'
-    } else {
-      isTie = false; // There's a player with a higher kicker at index 'i'
-      winner = contenders.find(
-        (player) => player.getKickers()[i] === highestKickerValue
-      );
-      break;
-    }
-  }
-
-  if (!isTie) {
-    console.log(winner.getName() + ' is the winner');
-    return winner;
-  } else {
-    console.log('After comparing kickers it is a tie between:');
-    for (const player of contenders) {
-      console.log(player.getName());
-    }
-    return contenders;
-  }
 }
 
 export { rankHandRanks };
