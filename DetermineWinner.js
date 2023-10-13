@@ -235,21 +235,22 @@ function compareStraights(contenders) {
   let isStraightTie = false;
 
   if (
-    // Check if all players have the same straight
     contenders.every(
       (player) =>
-        player.getStraightValue()[0] === contenders[0].getStraightValue()[0]
+        JSON.stringify(player.getStraightValue()) ===
+        JSON.stringify(contenders[0].getStraightValue())
     )
   ) {
-    isStraightTie = true;
-    console.log('Identical straights');
+    console.log('All players kickers were the same');
+    return contenders; // It's a tie
   }
 
   if (!isStraightTie) {
     const highestStraightValue = Math.max(
-      // What the higehst straight value is
       ...contenders.map((player) => player.getStraightValue()[0])
     );
+
+    console.log('Highest straight value:' + highestStraightValue);
 
     contenders = contenders.filter(
       (player) => player.getStraightValue()[0] === highestStraightValue // Include only players with the highest straight value
@@ -270,8 +271,10 @@ function compareStraights(contenders) {
 function compareKickers(contenders) {
   console.log('Comparing kickers...');
 
-  let winner;
-  let isTie = true;
+  contenders.forEach((player) => {
+    console.log(player.getName() + "'s kickers: " + player.getKickers());
+  });
+
   let highestKickerValue = 0;
   let kickersLength = contenders[0].getKickers().length; // Assumes all players have same kickers.length
 

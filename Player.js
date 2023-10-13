@@ -7,6 +7,7 @@ class Player {
     handRankName,
     handPoints,
     resultCards,
+    pokerHand,
     kickers,
     pairs,
     uniquePairs,
@@ -25,6 +26,7 @@ class Player {
     this.handRankName = handRankName;
     this.handPoints = handPoints;
     this.resultCards = resultCards;
+    this.pokerHand = pokerHand;
     this.kickers = kickers;
     this.pairs = pairs;
     this.uniquePairs = uniquePairs;
@@ -79,6 +81,13 @@ class Player {
   setResultCards(resultCards) {
     this.resultCards = resultCards;
   }
+  getPokerHand() {
+    return this.pokerHand;
+  }
+  setPokerHand(pokerHand) {
+    this.pokerHand = pokerHand;
+  }
+
   getKickers() {
     return this.kickers;
   }

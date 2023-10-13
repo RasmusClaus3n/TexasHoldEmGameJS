@@ -15,7 +15,10 @@ function scoreCards(comCards, player) {
   let resultCards = [...comCards, ...player.getHand()];
   player.setResultCards(resultCards);
 
-  if (hasStraightFlush(resultCards) || hasLowStraightFlush(resultCards)) {
+  if (
+    hasStraightFlush(resultCards, player) ||
+    hasLowStraightFlush(resultCards, player)
+  ) {
     player.setHandRankName('Straight Flush');
     return 9;
   } else if (hasFourOfAKind(resultCards, player)) {

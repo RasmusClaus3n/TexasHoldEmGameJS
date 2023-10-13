@@ -30,7 +30,6 @@ function hasOnePair(resultCards, player) {
     player.setPairs(pairs);
     player.setKickers(findKickers(resultCards, pairs, player));
     console.log(`${player.getName()} got one pair: ${player.getPairs()}`);
-    console.log(`${player.getName()} kickers: ${player.getKickers()}`);
   }
 
   return numPairs === 1;
@@ -65,7 +64,6 @@ function hasTwoPair(resultCards, player) {
     player.setPairs(pairs);
     player.setKickers(findKickers(resultCards, pairs, player));
     console.log(`${player.getName()} got two pairs: ${player.getPairs()}`);
-    console.log(`${player.getName()} kickers: ${player.getKickers()}`);
   }
 
   return numPairs >= 2;
@@ -231,35 +229,17 @@ function hasLowStraight(resultCards, player) {
 }
 
 function hasStraightFlush(resultCards, player) {
-  resultCards.sort((card1, card2) => card1.getValue() - card2.getValue());
+  let straightFlushValues;
 
-  let consecutiveCount = 1;
-  let straightFlushValues = [resultCards[0].getValue()];
+  const flushValues = setFlushValues(resultCards);
+  if (flushValues) {
+    straightFlushValues = setStraightValues(flushValues);
+  }
 
-  for (let i = 1; i < resultCards.length; i++) {
-    let currentVal = resultCards[i].getValue();
-    let prevVal = resultCards[i - 1].getValue();
-
-    if (
-      currentVal === prevVal + 1 &&
-      resultCards[i].getSuite() === resultCards[i - 1].getSuite()
-    ) {
-      consecutiveCount++;
-      straightFlushValues.push(currentVal);
-    } else if (currentVal !== prevVal) {
-      consecutiveCount = 1;
-      straightFlushValues = [currentVal];
-    }
-
-    if (consecutiveCount >= 5) {
-      straightFlushValues.sort((a, b) => b - a); // Sort in descending order
-      straightFlushValues = straightFlushValues.slice(0, 5); // Take the top 5 cards
-      player.setStraightFlushValue(straightFlushValues);
-      console.log(
-        `${player.getName()} got an ace high straight flush: ${player.getStraightFlushValue()}`
-      );
-      return true;
-    }
+  if (straightFlushValues && straightFlushValues.length == 5) {
+    player.setPokerHand(straightFlushValues);
+    console.log(player.getName() + ' has a straight flush');
+    return true;
   }
 
   correctAces(resultCards);
@@ -270,32 +250,17 @@ function hasStraightFlush(resultCards, player) {
 function hasLowStraightFlush(resultCards, player) {
   adjustAces(resultCards);
 
-  resultCards.sort((card1, card2) => card1.getValue() - card2.getValue());
+  let straightFlushValues;
 
-  let consecutiveCount = 1;
-  let straightFlushValues = [resultCards[0].getValue()];
+  const flushValues = setFlushValues(resultCards);
+  if (flushValues) {
+    straightFlushValues = setStraightValues(flushValues);
+  }
 
-  for (let i = 1; i < resultCards.length; i++) {
-    let currentVal = resultCards[i].getValue();
-    let prevVal = resultCards[i - 1].getValue();
-
-    if (
-      currentVal === prevVal + 1 &&
-      resultCards[i].getSuite() === resultCards[i - 1].getSuite()
-    ) {
-      consecutiveCount++;
-      straightFlushValues.push(currentVal);
-    } else if (currentVal !== prevVal) {
-      consecutiveCount = 1;
-      straightFlushValues = [currentVal];
-    }
-
-    if (consecutiveCount >= 5) {
-      straightFlushValues.sort((a, b) => b - a); // Sort in descending order
-      straightFlushValues = straightFlushValues.slice(0, 5); // Take the top 5 cards
-      player.setStraightFlushValue(straightFlushValues);
-      return true;
-    }
+  if (straightFlushValues && straightFlushValues.length == 5) {
+    player.setPokerHand(straightFlushValues);
+    console.log(player.getName() + ' has a low straight flush');
+    return true;
   }
 
   correctAces(resultCards);
@@ -345,6 +310,54 @@ function findKickers(resultCards, pokerHand, player) {
   }
 
   return;
+}
+
+function setStraightValues(cards) {
+  let consecutiveCount = 1;
+  let straightValues = [cards[0]];
+
+  for (let i = 1; i < cards.length; i++) {
+    let currentVal = cards[i];
+    let prevVal = cards[i - 1];
+
+    if (currentVal === prevVal - 1) {
+      consecutiveCount++;
+      straightValues.push(currentVal);
+    } else if (currentVal !== prevVal) {
+      consecutiveCount = 1;
+      straightValues = [currentVal];
+    }
+
+    if (consecutiveCount === 5) {
+      straightValues.sort((a, b) => b - a); // Sort in descending order
+      straightValues = straightValues.slice(0, 5); // Take the top 5 cards
+      return straightValues;
+    }
+  }
+}
+
+function setFlushValues(resultCards) {
+  let suiteCounts = new Map();
+
+  for (let card of resultCards) {
+    let suite = card.getSuite();
+    suiteCounts.set(suite, (suiteCounts.get(suite) || 0) + 1);
+  }
+
+  let flushValues = [];
+
+  for (let [suite, count] of suiteCounts) {
+    if (count >= 5) {
+      for (let card of resultCards) {
+        if (card.getSuite() === suite) {
+          flushValues.push(card.getValue());
+        }
+      }
+      flushValues.sort((a, b) => b - a); // Sort in descending order
+    }
+  }
+
+  return flushValues;
 }
 
 export {
