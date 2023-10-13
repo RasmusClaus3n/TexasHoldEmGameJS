@@ -253,6 +253,47 @@ function compareThreeOfAKinds(contenders) {
   }
 }
 
+// Same as compareStraights probably delete
+function compareStraightFlushes(contenders) {
+  console.log('Comparing straights flushes...');
+
+  let winner;
+  let isStraightFlushTie = false;
+
+  if (
+    contenders.every(
+      (player) =>
+        JSON.stringify(player.getStraightFlushValues()) ===
+        JSON.stringify(contenders[0].getStraightFlushValues())
+    )
+  ) {
+    console.log('All players straight flushes were the same');
+    return contenders; // It's a tie
+  }
+
+  if (!isStraightFlushTie) {
+    const highestStraightFlushValue = Math.max(
+      ...contenders.map((player) => player.getStraightFlushValues()[0])
+    );
+
+    console.log('Highest straight value:' + highestStraightFlushValue);
+
+    contenders = contenders.filter(
+      (player) =>
+        player.getStraightFlushValues()[0] === highestStraightFlushValue // Include only players with the highest straight value
+    );
+
+    if (contenders.length === 1) {
+      winner = contenders[0];
+      console.log(winner.getName() + ' has the highest straight flush');
+      return winner;
+    } else {
+      // No need to check for kickers since a straight = full poker hand
+      return contenders;
+    }
+  }
+}
+
 function compareStraights(contenders) {
   console.log('Comparing straights...');
 
@@ -266,7 +307,7 @@ function compareStraights(contenders) {
         JSON.stringify(contenders[0].getStraightValue())
     )
   ) {
-    console.log('All players kickers were the same');
+    console.log('All players straights were the same');
     return contenders; // It's a tie
   }
 
@@ -373,9 +414,8 @@ function compareFullHouses(contenders) {
 
   return compareOnePairs(contenders);
 }
-
+// Same as compareThreeOfAKind probably delete
 function compareFourOfAKinds(contenders) {
-  // The same as three of a a kind
   console.log('Comparing four of a kind...');
 
   let winner;
