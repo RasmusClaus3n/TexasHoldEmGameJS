@@ -51,14 +51,15 @@ function scoreCards(comCards, player) {
   }
 
   // BAD
-  const highCard = setHighCard(resultCards, player);
+  const highCard = setHighCard(resultCards);
   player.setHandRankName('High Card');
+  player.setHighCard(highCard);
   player.setKickers(findKickers(resultCards, highCard, player));
   return 1;
 }
 
 // BAD
-function setHighCard(resultCards, player) {
+function setHighCard(resultCards) {
   let cardVals = [];
 
   resultCards.forEach((card) => {

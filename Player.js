@@ -9,6 +9,7 @@ class Player {
     resultCards,
     pokerHand,
     kickers,
+    highCard,
     pairs,
     uniquePairs,
     highPairValue,
@@ -28,6 +29,7 @@ class Player {
     this.resultCards = resultCards;
     this.pokerHand = pokerHand;
     this.kickers = kickers;
+    this.highCard = highCard;
     this.pairs = pairs;
     this.uniquePairs = uniquePairs;
     this.highPairValue = highPairValue;
@@ -87,12 +89,17 @@ class Player {
   setPokerHand(pokerHand) {
     this.pokerHand = pokerHand;
   }
-
   getKickers() {
     return this.kickers;
   }
   setKickers(kickers) {
     this.kickers = kickers;
+  }
+  getHighCard() {
+    return this.highCard;
+  }
+  setHighCard(highCard) {
+    this.highCard = highCard;
   }
   getPairs() {
     return this.pairs;

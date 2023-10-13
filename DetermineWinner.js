@@ -22,42 +22,61 @@ function rankHandRanks(player, cpuPlayers) {
   switch (highestHandRank) {
     case 1:
       console.log('High Card Tie');
-      break;
+      return compareHighCards(contenders);
     case 2:
       console.log('One Pair Tie');
       return compareOnePairs(contenders);
-      break;
     case 3:
       console.log('Two Pairs Tie');
       return compareTwoPairs(contenders);
-      break;
     case 4:
       console.log('Three Of A Kind Tie');
       return compareThreeOfAKinds(contenders);
-      break;
     case 5:
       console.log('Straight Tie');
       return compareStraights(contenders);
-      break;
     case 6:
       console.log('Flush Tie');
-      break;
+      return compareFlushes(contenders);
     case 7:
       console.log('Full House Tie');
       return compareFullHouses(contenders);
-      break;
     case 8:
       console.log('Four Of A Kind Tie');
-      break;
+      return compareFourOfAKinds(contenders);
     case 9:
       console.log('Straight Flush Tie');
-      compareStraights(contenders);
-      break;
+      return compareStraights(contenders);
     // Add more cases as needed
     default:
       console.log('Unknown highestHandRank');
       break;
   }
+}
+
+function compareHighCards(contenders) {
+  if (
+    // Check if all players have the same high card value
+    contenders.every(
+      (player) => player.getHighCard() === contenders[0].getHighCard()
+    )
+  ) {
+    return contenders;
+  }
+
+  const highestHighCardValue = Math.max(
+    ...contenders.map((player) => player.getHighCard())
+  );
+
+  contenders = contenders.filter(
+    (player) => player.getHighCard()[0] === highestHighCardValue
+  );
+
+  if (contenders.length === 1) {
+    return contenders[0];
+  }
+
+  return compareKickers(contenders);
 }
 
 function compareOnePairs(contenders) {
@@ -273,6 +292,50 @@ function compareStraights(contenders) {
   }
 }
 
+function compareFlushes(contenders) {
+  let highestFlushValueIndex = 0;
+
+  for (let i = 1; i < contenders.length; i++) {
+    for (let j = 0; j < 5; j++) {
+      if (
+        contenders[i].getFlushValue()[j] >
+        contenders[highestFlushValueIndex].getFlushValue()[j]
+      ) {
+        highestFlushValueIndex = i;
+        break; // Move on to the next player once we find a higher value
+      } else if (
+        contenders[i].getFlushValue()[j] <
+        contenders[highestFlushValueIndex].getFlushValue()[j]
+      ) {
+        break; // Move on to the next player once we find a lower value
+      }
+    }
+  }
+
+  const winner = contenders[highestFlushValueIndex];
+
+  // Check for ties
+  const tiedPlayers = contenders.filter((player, index) => {
+    return (
+      index !== highestFlushValueIndex &&
+      JSON.stringify(player.getFlushValue()) ===
+        JSON.stringify(winner.getFlushValue())
+    );
+  });
+
+  if (tiedPlayers.length > 0) {
+    console.log('Flush tie between:');
+    tiedPlayers.forEach((player) => {
+      console.log(player.getName());
+    });
+    return tiedPlayers.concat(winner);
+  }
+
+  console.log(winner.getName() + ' wins');
+  console.log(winner.getFlushValue());
+  return winner;
+}
+
 function compareFullHouses(contenders) {
   console.log('Comparing three of a kind...');
 
@@ -311,6 +374,53 @@ function compareFullHouses(contenders) {
   return compareOnePairs(contenders);
 }
 
+function compareFourOfAKinds(contenders) {
+  // The same as three of a a kind
+  console.log('Comparing four of a kind...');
+
+  let winner;
+  let isTie = false;
+
+  contenders.forEach((player) => {
+    player.setFourOfAKindValue([...new Set(player.getFourOfAKindValue())]);
+  });
+
+  if (
+    // Check if all players have the same three of a kind
+    contenders.every(
+      (player) =>
+        player.getFourOfAKindValue()[0] === contenders[0].getFourOfAKindValue()
+    )
+  ) {
+    isTie = true;
+    console.log('Identical four of a kinds');
+  }
+
+  if (!isTie) {
+    const highestFourOfAKindValue = Math.max(
+      // What the higehst three of a kind value is
+      ...contenders.map((player) => player.getFourOfAKindValue()[0])
+    );
+
+    contenders = contenders.filter(
+      (player) => player.getFourOfAKindValue()[0] === highestFourOfAKindValue // Include only players with the highest three of a kind value
+    );
+
+    if (contenders.length === 1) {
+      winner = contenders[0];
+      console.log(winner.getName() + ' has the highest four of a kind');
+      return winner;
+    } else {
+      isTie = true;
+    }
+  }
+
+  if (isTie) {
+    console.log('Four of a kind tie');
+    return compareKickers(contenders);
+  }
+}
+
 // Compare kicker values in case of ties
 function compareKickers(contenders) {
   console.log('Comparing kickers...');
@@ -323,6 +433,7 @@ function compareKickers(contenders) {
   let kickersLength = contenders[0].getKickers().length; // Assumes all players have same kickers.length
 
   if (
+    // Check if all kickers are same
     contenders.every(
       (player) =>
         JSON.stringify(player.getKickers()) ===
@@ -340,10 +451,11 @@ function compareKickers(contenders) {
     highestKickerValue = Math.max(highestValue, highestKickerValue);
   }
 
-  console.log('Highest kicker value:' + highestKickerValue);
+  console.log('Highest kicker value: ' + highestKickerValue);
 
   contenders = contenders.filter(
-    (player) => player.getKickers()[0] === highestKickerValue // Only include players who has this value
+    // Only include players who has this value
+    (player) => player.getKickers()[0] === highestKickerValue
   );
 
   if (contenders.length === 1) {
@@ -353,7 +465,6 @@ function compareKickers(contenders) {
 
   const remainingKickersLength = contenders[0].getKickers().length;
 
-  // Maybe only need this part?
   for (let i = 0; i < remainingKickersLength; i++) {
     let maxKickerValue = Math.max(
       ...contenders.map((player) => player.getKickers()[i])
