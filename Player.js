@@ -136,10 +136,10 @@ class Player {
   setStraightValue(straightValue) {
     this.straightValue = straightValue;
   }
-  getStraightFlushValue() {
+  getStraightFlushValues() {
     return this.straightFlushValue;
   }
-  setStraightFlushValue(straightFlushValue) {
+  setStraightFlushValues(straightFlushValue) {
     this.straightFlushValue = straightFlushValue;
   }
   getFlushValue() {

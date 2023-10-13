@@ -128,27 +128,27 @@ function createTurnOrRiver(deck, comCards) {
 }
 
 function createTestFlop(deck, comCards) {
-  comCards.push(deck[1]);
   comCards.push(deck[2]);
-  comCards.push(deck[3]);
-  comCards.push(deck[6]);
-  comCards.push(deck[22]);
+  comCards.push(deck[28]);
+  comCards.push(deck[41]);
+  comCards.push(deck[40]);
+  comCards.push(deck[35]);
 }
 
-function createTestHand(deck, playerCards) {
-  playerCards.push(deck[39]);
-  playerCards.push(deck[13]);
+function createMainPlayerTestHand(deck, playerCards) {
+  playerCards.push(deck[6]);
+  playerCards.push(deck[19]);
   return playerCards; // Returns the player cards
 }
 
-function createTestHand2(deck, playerCards) {
-  playerCards.push(deck[50]);
-  playerCards.push(deck[30]);
+function createCPU1TestHand(deck, playerCards) {
+  playerCards.push(deck[33]);
+  playerCards.push(deck[33]);
   return playerCards; // Returns the player cards
 }
 
-function createTestHand3(deck, playerCards) {
-  playerCards.push(deck[4]);
+function createCPU2TestHand(deck, playerCards) {
+  playerCards.push(deck[18]);
   playerCards.push(deck[5]);
   return playerCards; // Returns the player cards
 }
@@ -159,7 +159,7 @@ export {
   createFlop,
   createTurnOrRiver,
   createTestFlop,
-  createTestHand,
-  createTestHand2,
-  createTestHand3,
+  createMainPlayerTestHand,
+  createCPU1TestHand,
+  createCPU2TestHand,
 };

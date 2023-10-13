@@ -6,9 +6,9 @@ import {
   createFlop,
   createTurnOrRiver,
   createTestFlop,
-  createTestHand,
-  createTestHand2,
-  createTestHand3,
+  createMainPlayerTestHand,
+  createCPU1TestHand,
+  createCPU2TestHand,
 } from './DeckManager.js';
 import { scoreCards } from './ScoreHandler.js';
 import {
@@ -26,15 +26,15 @@ import { rankHandRanks } from './DetermineWinner.js';
 import { displayToDOM } from './DOMhandler.js';
 
 let deck = createDeck([]);
-shuffleDeck(deck);
+// shuffleDeck(deck);
 
 let cpuPlayers = createCPUplayers(deck);
 let mainPlayer = createMainPlayer(deck);
 let winner;
 
 let comCards = [];
-createFlop(deck, comCards);
-// createTestFlop(deck, comCards);
+// createFlop(deck, comCards);
+createTestFlop(deck, comCards);
 
 setHandRanks(mainPlayer, cpuPlayers);
 
@@ -63,13 +63,13 @@ function createCPUplayers(deck) {
     cpu.setMoney(1000);
     cpu.setName(`CPU${i + 1}`);
     let cpuCards = [];
-    cpu.setHand(createHand(deck, cpuCards));
-    // if (cpu.getName() === 'CPU1') {
-    //   cpu.setHand(createTestHand2(deck, cpuCards));
-    // }
-    // if (cpu.getName() === 'CPU2') {
-    //   cpu.setHand(createTestHand3(deck, cpuCards));
-    // }
+    // cpu.setHand(createHand(deck, cpuCards));
+    if (cpu.getName() === 'CPU1') {
+      cpu.setHand(createCPU1TestHand(deck, cpuCards));
+    }
+    if (cpu.getName() === 'CPU2') {
+      cpu.setHand(createCPU2TestHand(deck, cpuCards));
+    }
 
     cpuPlayers.push(cpu);
   }
@@ -82,8 +82,8 @@ function createMainPlayer(deck) {
   mainPlayer.setMoney(1000);
   mainPlayer.setName('You');
   let mainPlayerCards = [];
-  mainPlayer.setHand(createHand(deck, mainPlayerCards));
-  // mainPlayer.setHand(createTestHand(deck, mainPlayerCards));
+  // mainPlayer.setHand(createHand(deck, mainPlayerCards));
+  mainPlayer.setHand(createMainPlayerTestHand(deck, mainPlayerCards));
 
   return mainPlayer;
 }

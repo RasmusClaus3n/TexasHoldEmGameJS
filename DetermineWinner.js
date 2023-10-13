@@ -44,12 +44,14 @@ function rankHandRanks(player, cpuPlayers) {
       break;
     case 7:
       console.log('Full House Tie');
+      return compareFullHouses(contenders);
       break;
     case 8:
       console.log('Four Of A Kind Tie');
       break;
     case 9:
       console.log('Straight Flush Tie');
+      compareStraights(contenders);
       break;
     // Add more cases as needed
     default:
@@ -95,9 +97,13 @@ function compareOnePairs(contenders) {
     }
   }
 
-  if (isPairTie) {
+  if (isPairTie && contenders[0].getHandRank() < 7) {
+    // Don't compare kickers if full house
     console.log("It's a pair tie");
     return compareKickers(contenders);
+  } else {
+    console.log('After comparing pairs: Full House Tie!');
+    return contenders;
   }
 }
 
@@ -215,7 +221,7 @@ function compareThreeOfAKinds(contenders) {
 
     if (contenders.length === 1) {
       winner = contenders[0];
-      console.log(winner.getName() + ' has the highest high pair');
+      console.log(winner.getName() + ' has the highest three of a kind');
       return winner;
     } else {
       isTie = true;
@@ -223,7 +229,7 @@ function compareThreeOfAKinds(contenders) {
   }
 
   if (isTie) {
-    console.log(contenders[0] + ' this runs :|');
+    console.log('Three of a kind tie');
     return compareKickers(contenders);
   }
 }
@@ -265,6 +271,44 @@ function compareStraights(contenders) {
       return contenders;
     }
   }
+}
+
+function compareFullHouses(contenders) {
+  console.log('Comparing three of a kind...');
+
+  let winner;
+  let isTie = false;
+
+  contenders.forEach((player) => {
+    player.setThreeOfAKindValue([...new Set(player.getThreeOfAKindValue())]);
+  });
+
+  if (
+    contenders.every(
+      (player) =>
+        JSON.stringify(player.getThreeOfAKindValue()) ===
+        JSON.stringify(contenders[0].getThreeOfAKindValue())
+    )
+  ) {
+    console.log('Full House: Three Of A Kind Tie');
+    return compareOnePairs(contenders);
+  }
+  const highestThreeOfAKindValue = Math.max(
+    // What the higehst three of a kind value is
+    ...contenders.map((player) => player.getThreeOfAKindValue())
+  );
+
+  contenders = contenders.filter(
+    (player) => player.getThreeOfAKindValue() === highestThreeOfAKindValue // Include only players with the highest three of a kind value
+  );
+
+  if (contenders.length === 1) {
+    winner = contenders[0];
+    console.log(winner.getName() + ' has the highest three of a kind');
+    return winner;
+  }
+
+  return compareOnePairs(contenders);
 }
 
 // Compare kicker values in case of ties
@@ -324,48 +368,6 @@ function compareKickers(contenders) {
     }
   }
   return contenders;
-}
-
-function yeOld() {
-  function compareKickers(contenders) {
-    console.log('Comparing kickers...');
-
-    let winner;
-    let isTie = true;
-
-    for (let i = 0; i < contenders[0].getKickers().length; i++) {
-      const highestKickerValue = Math.max(
-        ...contenders.map((player) => player.getKickers()[i])
-      );
-
-      if (
-        contenders.every(
-          (player) => player.getKickers()[i] === contenders[0].getKickers()[i]
-        )
-      ) {
-        isTie = true; // All players have the same kicker at index 'i'
-      } else {
-        // There's a player with a higher kicker at index 'i'
-        winner = contenders.find(
-          (player) => player.getKickers()[i] === highestKickerValue
-        );
-        if (contenders.length === 1) {
-          return winner;
-        }
-      }
-    }
-
-    if (!isTie) {
-      console.log(winner.getName() + ' is the winner');
-      return winner;
-    } else {
-      console.log('After comparing kickers it is a tie between:');
-      for (const player of contenders) {
-        console.log(player.getName());
-      }
-      return contenders;
-    }
-  }
 }
 
 function setHighAndLowPairValue(contenders) {

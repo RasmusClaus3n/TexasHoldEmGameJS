@@ -182,7 +182,7 @@ function hasStraight(resultCards, player) {
 
       // No need so set kickers since a straight makes out a five card hand
       console.log(
-        `${player.getName()} got an ace high straight: ${player.getStraightValue()}`
+        `${player.getName()} got a straight: ${player.getStraightValue()}`
       );
       return true;
     }
@@ -237,7 +237,7 @@ function hasStraightFlush(resultCards, player) {
   }
 
   if (straightFlushValues && straightFlushValues.length == 5) {
-    player.setPokerHand(straightFlushValues);
+    player.setStraightFlushValues(straightFlushValues);
     console.log(player.getName() + ' has a straight flush');
     return true;
   }
@@ -250,6 +250,8 @@ function hasStraightFlush(resultCards, player) {
 function hasLowStraightFlush(resultCards, player) {
   adjustAces(resultCards);
 
+  // Maybe just return hasStraigtFlush(resultCards)???
+
   let straightFlushValues;
 
   const flushValues = setFlushValues(resultCards);
@@ -258,7 +260,7 @@ function hasLowStraightFlush(resultCards, player) {
   }
 
   if (straightFlushValues && straightFlushValues.length == 5) {
-    player.setPokerHand(straightFlushValues);
+    player.setStraightFlushValues(straightFlushValues);
     console.log(player.getName() + ' has a low straight flush');
     return true;
   }
@@ -268,7 +270,7 @@ function hasLowStraightFlush(resultCards, player) {
   return false;
 }
 
-// Helper-function to adjust the value of aces to 1 in case of low straight
+// Adjust the value of aces to 1 in case of low straight
 function adjustAces(resultCards) {
   for (let card of resultCards) {
     if (card.getValue() === 14) {
@@ -276,7 +278,7 @@ function adjustAces(resultCards) {
     }
   }
 }
-// Helper-function to correct the value of aces back to 14
+// Correct the value of aces back to 14
 function correctAces(resultCards) {
   for (let card of resultCards) {
     if (card.getValue() === 1) {
