@@ -3,15 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Texas Hold'em</title>
+    <link rel="icon" type="image/x-icon" href="/otherImages/jack.ico" />
+    <link rel="stylesheet" href="./node_modules/nes.css/css/nes.min.css" />
+    <!-- https://nostalgic-css.github.io/NES.css/ -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/button.css" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
+
+    <style>
+      html,
+      body,
+      pre,
+      code,
+      kbd,
+      samp {
+        font-family: 'Press Start 2P';
+      }
+    </style>
   </head>
   <body>
     <div class="texasHoldEm-container">
@@ -20,20 +35,57 @@
       <div class="community-cards"></div>
 
       <div class="player-cards-row">
-        <div class="cpu-col">
-          <div class="mp-name"><h3>YOU</h3></div>
-          <div class="player-cards"></div>
-          <div id="mp-hand-rank-name" class="player-hand-rank">
-            <h3></h3>
+        <div class="player-container nes-container is-dark with-title">
+          <p class="title">YOU</p>
+          <div class="main-player-content">
+            <div class="player-content">
+              <div class="player-cards"></div>
+              <div id="mp-hand-rank-name" class="player-hand-rank">
+                <p></p>
+              </div>
+            </div>
+            <div class="playerOptions">
+              <a class="nes-btn" href="#">CALL</a>
+              <a class="nes-btn" href="#">RAISE</a>
+              <a class="nes-btn" href="#">FOLD</a>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- 
+    <section class="message-list">
+      <section class="message -left">
+        <div class="nes-balloon from-left">
+          <p style="color: black;">Hello NES.css</p>
+        </div>
+      </section> -->
 
     <!-- <div class="pkr-btn">
       <button>Click</button>
     </div> -->
 
-    <script src="Game.js" type="module"></script>
+    <footer>
+      <section class="icon-list">
+        <div class="moi">
+          <!-- github -->
+          <a href="https://github.com/RasmusClaus3n" target="_blank">
+            <i class="nes-icon github is-medium"></i>
+          </a>
+          <!-- linkedin -->
+          <a
+            href="https://www.linkedin.com/in/rasmus-clausen-625b0a149/"
+            target="_blank"
+          >
+            <i class="nes-icon linkedin is-medium"></i>
+          </a>
+          <a href="https://nostalgic-css.github.io/NES.css/" target="_blank">
+            <i class="snes-jp-logo is-medium"></i>
+          </a>
+        </div>
+      </section>
+    </footer>
+
+    <script src="js/game.js" type="module"></script>
   </body>
 </html>
