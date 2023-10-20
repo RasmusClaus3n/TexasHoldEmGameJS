@@ -1,9 +1,13 @@
 .nes-btn {
   margin-top: 10px;
   margin-bottom: 10px;
-  font-size: 10px;
+  font-size: 12px;
+  padding: 10px 20px;
 }
 
+.nes-btn.is-primary:focus {
+  box-shadow: none;
+}
 .nes-btn:focus {
   box-shadow: none;
 }

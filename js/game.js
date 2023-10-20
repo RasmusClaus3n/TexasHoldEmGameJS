@@ -24,7 +24,7 @@ import {
 } from './evaluate-hand.js';
 import { rankHandRanks } from './determine-winner.js';
 import { displayToDOM } from './dom-handler.js';
-import { logPlayers } from './round.js';
+import { setBlinds } from './round.js';
 
 let randomNames = [
   'Steve',
@@ -80,14 +80,13 @@ const allPlayers = [mainPlayer, ...cpuPlayers];
 shuffleDeck(deck);
 createFlop(deck, comCards);
 // createTestFlop(deck, comCards);
+setBlinds(allPlayers, 2, 0);
 setHandRanks(mainPlayer, cpuPlayers);
 displayToDOM(mainPlayer, cpuPlayers, comCards);
 
 winner = rankHandRanks(mainPlayer, cpuPlayers);
 
 console.log(winner);
-
-console.log(allPlayers);
 
 if (Array.isArray(winner)) {
   console.log('Tied winners!: ');

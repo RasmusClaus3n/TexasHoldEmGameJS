@@ -4,11 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Texas Hold'em</title>
-    <link rel="icon" type="image/x-icon" href="/otherImages/jack.ico" />
+    <link rel="icon" type="image/x-icon" href="/otherImages/casino-chip.png" />
     <link rel="stylesheet" href="./node_modules/nes.css/css/nes.min.css" />
     <!-- https://nostalgic-css.github.io/NES.css/ -->
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/button.css" />
+    <link rel="stylesheet" href="css/slider.css" /
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -45,9 +46,14 @@
               </div>
             </div>
             <div class="playerOptions">
-              <a class="nes-btn" href="#">CALL</a>
-              <a class="nes-btn" href="#">RAISE</a>
-              <a class="nes-btn" href="#">FOLD</a>
+              <a class="nes-btn is-primary" href="#">CALL</a>
+              <a
+                class="nes-btn is-primary"
+                href="#"
+                onclick="document.getElementById('dialog-dark-rounded').showModal();"
+                >RAISE</a
+              >
+              <a class="nes-btn is-primary" href="#">FOLD</a>
             </div>
           </div>
         </div>
@@ -64,6 +70,25 @@
     <!-- <div class="pkr-btn">
       <button>Click</button>
     </div> -->
+
+    <!-- Dark and Rounded dialog -->
+    <dialog class="nes-dialog is-dark is-rounded" id="dialog-dark-rounded">
+      <form method="dialog">
+        <p class="title raise-money">Dark and Rounded dialog</p>
+        <input
+          type="range"
+          id="slider"
+          name="slider"
+          min="0"
+          max="100"
+          step="1"
+        />
+        <menu class="dialog-menu">
+          <button class="nes-btn">Cancel</button>
+          <button class="nes-btn is-primary">Confirm</button>
+        </menu>
+      </form>
+    </dialog>
 
     <footer>
       <section class="icon-list">
