@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>8bit Texas Hold'em</title>
-    <link rel="icon" type="image/x-icon" href="/otherImages/casino-chip.png" />
+    <link rel="icon" type="image/x-icon" href="/otherImages/jack.ico" />
     <link rel="stylesheet" href="./node_modules/nes.css/css/nes.min.css" />
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/players.css" />
@@ -37,8 +37,11 @@
       <div class="community-cards"></div>
 
       <div class="player-cards-row">
-        <div class="main-player-container nes-container is-dark with-title">
-          <p class="title">YOU</p>
+        <div
+          class="main-player-container nes-container is-dark with-title"
+          id="You-container"
+        >
+          <p class="title">YOU <span class="main-player-money"></span></p> 
           <div class="main-player-content">
             <div class="player-content">
               <div class="player-cards"></div>
@@ -55,13 +58,20 @@
                 >RAISE</a
               >
               <a class="nes-btn is-primary" href="#">FOLD</a>
-              <div class="bb-label">
-                <span class="big-blind">BB</span>
-              </div>
             </section>
           </div>
         </div>
+        <div
+        class="main-player-container nes-container is-dark with-title"
+        id="You-container"
+      ><p class="title">Pot</p>
+        <p class="pot-text">$1000</p>
+        </div>
       </div>
+
+ 
+    </div>
+
     </div>
 
     <footer>

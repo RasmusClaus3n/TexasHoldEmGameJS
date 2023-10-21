@@ -23,10 +23,10 @@ import {
   hasLowStraight,
 } from './evaluate-hand.js';
 import { rankHandRanks } from './determine-winner.js';
-import { displayToDOM } from './dom-handler.js';
-import { setBlinds } from './round.js';
+import { displayToDOM, updateUI } from './dom-handler.js';
+import { setBlinds } from './blinds.js';
 
-let randomNames = [
+const randomNames = [
   'Steve',
   'Rey',
   'Glen',
@@ -68,39 +68,52 @@ let randomNames = [
   'Judy',
 ];
 
+let cpuPlayers;
+let mainPlayer;
 let winner;
-let blindTurnNum = 1;
-let pot = 1;
+let blindTurnNum;
+let pot;
 
-const deck = createDeck([]);
-const comCards = [];
-const cpuPlayers = createCPUplayers(deck);
-const mainPlayer = createMainPlayer(deck);
-const allPlayers = [mainPlayer, ...cpuPlayers];
-
-shuffleDeck(deck);
-createFlop(deck, comCards);
-// createTestFlop(deck, comCards);
-setBlinds(allPlayers, pot, blindTurnNum);
-setHandRanks(mainPlayer, cpuPlayers);
-displayToDOM(mainPlayer, cpuPlayers, comCards);
-
-winner = rankHandRanks(mainPlayer, cpuPlayers);
-
-console.log(winner);
-
-if (Array.isArray(winner)) {
-  console.log('Tied winners!: ');
-  for (const player of winner) {
-    console.log(player.getName());
-  }
-} else {
-  console.log(winner.getName() + ' wins');
+if (!cpuPlayers || !mainPlayer) {
+  cpuPlayers = createCPUplayers();
+  mainPlayer = createMainPlayer();
+  blindTurnNum = 0;
+  pot = 0;
 }
 
-function startNewStage() {} // TBI
+const allPlayers = [mainPlayer, ...cpuPlayers];
 
-function createCPUplayers(deck) {
+startGame(mainPlayer, cpuPlayers, allPlayers, pot, blindTurnNum);
+
+function startGame(mainPlayer, cpuPlayers, allPlayers, pot, blindTurnNum) {
+  const deck = createDeck([]);
+  const comCards = [];
+
+  shuffleDeck(deck);
+  setMainPlayerHoleCards(mainPlayer, deck);
+  setCpuHoleCards(cpuPlayers, deck);
+  // createFlop(deck, comCards);
+  // createTestFlop(deck, comCards);
+
+  setHandRanks(mainPlayer, cpuPlayers, comCards);
+  displayToDOM(mainPlayer, cpuPlayers, comCards);
+  setBlinds(allPlayers, pot, blindTurnNum);
+
+  winner = rankHandRanks(mainPlayer, cpuPlayers);
+
+  console.log(winner);
+
+  if (Array.isArray(winner)) {
+    console.log('Tied winners!: ');
+    for (const player of winner) {
+      console.log(player.getName());
+    }
+  } else {
+    console.log(winner.getName() + ' wins');
+  }
+}
+
+function createCPUplayers() {
   let cpuPlayers = [];
 
   for (let i = 0; i < 5; i++) {
@@ -115,8 +128,6 @@ function createCPUplayers(deck) {
     // Set the name and remove it from the copy
     cpu.setName(randomName);
     randomNames.splice(randomIndex, 1);
-    let cpuCards = [];
-    cpu.setHand(createHand(deck, cpuCards));
 
     cpuPlayers.push(cpu);
   }
@@ -124,25 +135,28 @@ function createCPUplayers(deck) {
   return cpuPlayers;
 }
 
-// if (cpu.getName() === 'CPU1') {
-//   cpu.setHand(createCPU1TestHand(deck, cpuCards));
-// }
-// if (cpu.getName() === 'CPU2') {
-//   cpu.setHand(createCPU2TestHand(deck, cpuCards));
-// }
-
-function createMainPlayer(deck) {
+function createMainPlayer() {
   let mainPlayer = new Player();
   mainPlayer.setMoney(1000);
   mainPlayer.setName('You');
-  let mainPlayerCards = [];
-  mainPlayer.setHand(createHand(deck, mainPlayerCards));
-  // mainPlayer.setHand(createMainPlayerTestHand(deck, mainPlayerCards));
 
   return mainPlayer;
 }
 
-function setHandRanks(mainPlayer, cpuPlayers) {
+function setCpuHoleCards(cpuPlayers, deck) {
+  cpuPlayers.forEach((cpu) => {
+    let cpuCards = [];
+    cpu.setHand(createHand(deck, cpuCards));
+  });
+}
+
+function setMainPlayerHoleCards(mainPlayer, deck) {
+  let mainPlayerCards = [];
+  mainPlayer.setHand(createHand(deck, mainPlayerCards));
+  // mainPlayer.setHand(createMainPlayerTestHand(deck, mainPlayerCards));
+}
+
+function setHandRanks(mainPlayer, cpuPlayers, comCards) {
   mainPlayer.setHandRank(scoreCards(comCards, mainPlayer));
   for (let cpu of cpuPlayers) {
     cpu.setHandRank(scoreCards(comCards, cpu));

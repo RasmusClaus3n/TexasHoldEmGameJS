@@ -57,6 +57,7 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
 
   const cpuContainer = document.createElement('div');
   cpuContainer.className = 'player-container nes-container is-dark with-title';
+  cpuContainer.id = cpu.getName() + '-container';
 
   const nameText = document.createElement('p');
   nameText.className = 'title';
@@ -65,6 +66,7 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
   const moneyText = document.createElement('span');
   moneyText.style.color = '#46e46d'; // Set the color to green
   moneyText.textContent = ` \$${cpu.getMoney()}`;
+  moneyText.className = 'cpuMoney';
 
   const playerContent = document.createElement('div');
   playerContent.className = 'player-content';
@@ -95,16 +97,25 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
   }
 }
 
-function createBigBlind() {
-  const bbDiv = document.createElement('div');
-  const bbSpan = document.createElement('span');
-  bbDiv.className = 'bb-label';
-  bbSpan.className = 'big-blind';
-  bbSpan.textContent = 'BB';
+function updateUI(mainPlayer, cpuPlayers, comCards, pot) {
+  // Update main player's hand rank
+  mainPlayerHandRankName.textContent = mainPlayer.getHandRankName();
 
-  bbDiv.appendChild(bbSpan);
+  // Update main player's money
+  const moneyText = document.querySelector('.main-player-money');
+  moneyText.textContent = `$${mainPlayer.getMoney()}`;
+
+  // Update CPU players' money
+  for (const cpu of cpuPlayers) {
+    const cpuContainer = document.getElementById(`${cpu.getName()}-container`);
+    const moneyText = cpuContainer.querySelector('.cpuMoney');
+    moneyText.textContent = ` $${cpu.getMoney()}`;
+  }
+
+  // Update pot
+  potText.textContent = `$${pot}`;
 }
 
 function createHandRankNames() {}
 
-export { displayToDOM };
+export { displayToDOM, updateUI };

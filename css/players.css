@@ -7,17 +7,17 @@
 }
 
 .poker-card {
-  max-width: 40%; /* Ensures cards don't exceed container width */
+  max-width: 60px; /* Ensures cards don't exceed container width */
   box-sizing: border-box; /* Include padding and border in the element's total width */
   overflow: hidden; /* Hide any content that exceeds the maximum width */
 }
 
 .main-player-container .poker-card {
-  max-width: 25%;
+  max-width: 60px;
 }
 
 .community-cards .poker-card {
-  max-width: 6%;
+  max-width: 60px;
 }
 
 .player-container {
@@ -50,7 +50,6 @@
 
 .nes-container {
   max-width: 55%;
-  min-width: 10%;
   border-width: 2px;
 }
 
@@ -128,9 +127,25 @@
   display: flex;
 }
 
-.bb-label {
+.blind-label {
   position: absolute;
   bottom: 0;
   right: 0;
   margin: 10px;
+}
+
+.big-blind {
+  color: orange;
+}
+
+.small-blind {
+  color: orange;
+}
+
+.cpu-money {
+  color: rgb(70, 228, 109);
+}
+
+.main-player-money {
+  color: rgb(70, 228, 109);
 }
