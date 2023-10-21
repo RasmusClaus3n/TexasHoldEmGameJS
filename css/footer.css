@@ -1,0 +1,17 @@
+footer {
+  display: flex;
+  justify-content: center;
+}
+
+.icon-list {
+  display: flex;
+  align-items: center;
+}
+
+.icon-list a {
+  margin-left: 10px;
+}
+
+.snes-jp-logo {
+  margin-left: auto;
+}

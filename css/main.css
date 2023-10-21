@@ -1,0 +1,31 @@
+body {
+  background-color: rgb(29, 77, 40);
+  color: white;
+  text-align: center;
+  margin: 0;
+  transform-origin: top;
+}
+
+@media (max-width: 768px) {
+  /* Styles for smaller screens go here */
+}
+
+@media (min-width: 1920px) and (max-width: 1930px) and (min-height: 1080px) and (max-height: 1090px) {
+  body {
+    transform: scale(1.5);
+  }
+}
+
+@media (min-width: 1920px) and (max-width: 1930px) and (min-height: 1200px) and (max-height: 1210px) {
+  body {
+    transform: scale(1.5);
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.inline-flex {
+  display: inline-flex;
+}

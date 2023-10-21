@@ -1,11 +1,10 @@
 const comCardsDiv = document.querySelector('.community-cards');
 const playerCardsDiv = document.querySelector('.player-cards');
-
 const cpuPlayersRowDiv = document.querySelector('.cpu-players-row');
-
 const mainPlayerHandRankName = document
   .getElementById('mp-hand-rank-name')
   .querySelector('p');
+const potText = document.querySelector('.pot-text');
 const pkrBtn = document.querySelector('.pkr-btn button');
 
 function displayToDOM(mainPlayer, cpuPlayers, comCards) {
@@ -59,9 +58,13 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
   const cpuContainer = document.createElement('div');
   cpuContainer.className = 'player-container nes-container is-dark with-title';
 
-  const title = document.createElement('p');
-  title.className = 'title';
-  title.textContent = `${cpuId} \$${cpu.getMoney()} `;
+  const nameText = document.createElement('p');
+  nameText.className = 'title';
+  nameText.textContent = cpuId;
+
+  const moneyText = document.createElement('span');
+  moneyText.style.color = '#46e46d'; // Set the color to green
+  moneyText.textContent = ` \$${cpu.getMoney()}`;
 
   const playerContent = document.createElement('div');
   playerContent.className = 'player-content';
@@ -78,7 +81,8 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
 
   playerHandRank.appendChild(playerHandRankText);
 
-  cpuContainer.appendChild(title);
+  cpuContainer.appendChild(nameText);
+  nameText.appendChild(moneyText);
   cpuContainer.appendChild(playerContent);
   cpuPlayersRowDiv.appendChild(cpuContainer);
 
@@ -89,6 +93,16 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
     let pokerCardImg = createPokerCardImg(card);
     cpuCardsDiv.appendChild(pokerCardImg);
   }
+}
+
+function createBigBlind() {
+  const bbDiv = document.createElement('div');
+  const bbSpan = document.createElement('span');
+  bbDiv.className = 'bb-label';
+  bbSpan.className = 'big-blind';
+  bbSpan.textContent = 'BB';
+
+  bbDiv.appendChild(bbSpan);
 }
 
 function createHandRankNames() {}

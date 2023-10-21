@@ -1,0 +1,136 @@
+.texasHoldEm-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.poker-card {
+  max-width: 40%; /* Ensures cards don't exceed container width */
+  box-sizing: border-box; /* Include padding and border in the element's total width */
+  overflow: hidden; /* Hide any content that exceeds the maximum width */
+}
+
+.main-player-container .poker-card {
+  max-width: 25%;
+}
+
+.community-cards .poker-card {
+  max-width: 6%;
+}
+
+.player-container {
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.main-player-container {
+  max-width: 50%;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nes-container.with-title .playerOptions {
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.nes-container.with-title .playerOptions a {
+  white-space: normal;
+  margin: 5px;
+}
+
+.nes-container {
+  max-width: 55%;
+  min-width: 10%;
+  border-width: 2px;
+}
+
+.nes-container.with-title > .title {
+  font-size: 12px;
+}
+
+.cpu-players-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.community-cards {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.player-cards-row {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
+}
+
+.main-player-content {
+  display: flex;
+}
+
+.player-content {
+  display: flex;
+  flex-grow: 1; /* Allow this div to grow and take up remaining space */
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+}
+
+.player-cards {
+  display: flex;
+  justify-content: center;
+}
+
+.player-hand-rank {
+  color: #ffffff;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin: auto;
+  margin-top: 1em;
+}
+
+.playerOptions {
+  display: flex;
+  align-items: center;
+  margin-left: 40px;
+}
+
+.playerOptions a {
+  margin-right: 30px;
+}
+
+.pkr-btn {
+  display: flex;
+  justify-content: center;
+}
+
+.money-text {
+  color: #00c949;
+}
+
+.pot-container {
+  display: flex;
+}
+
+.pot-content {
+  display: flex;
+}
+
+.bb-label {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 10px;
+}

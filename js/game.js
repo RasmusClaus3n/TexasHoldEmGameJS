@@ -28,7 +28,6 @@ import { setBlinds } from './round.js';
 
 let randomNames = [
   'Steve',
-  'Darryl',
   'Rey',
   'Glen',
   'Rey',
@@ -36,14 +35,14 @@ let randomNames = [
   'Raul',
   'Paul',
   'Josh',
-  'Bobson',
-  'Willie',
-  'Jerome',
+  'Bob',
+  'Will',
+  'Jerry',
   'Scott',
   'Shaun',
   'Dean',
   'Mike',
-  'Dwight',
+  'Max',
   'Tim',
   'Karl',
   'Todd',
@@ -70,6 +69,8 @@ let randomNames = [
 ];
 
 let winner;
+let blindTurnNum = 1;
+let pot = 1;
 
 const deck = createDeck([]);
 const comCards = [];
@@ -80,7 +81,7 @@ const allPlayers = [mainPlayer, ...cpuPlayers];
 shuffleDeck(deck);
 createFlop(deck, comCards);
 // createTestFlop(deck, comCards);
-setBlinds(allPlayers, 2, 0);
+setBlinds(allPlayers, pot, blindTurnNum);
 setHandRanks(mainPlayer, cpuPlayers);
 displayToDOM(mainPlayer, cpuPlayers, comCards);
 

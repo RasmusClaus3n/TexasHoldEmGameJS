@@ -1,3 +1,5 @@
+/* I used https://range-input-css.netlify.app/ for this */
+
 /*********** Baseline, reset styles ***********/
 input[type='range'] {
   -webkit-appearance: none;

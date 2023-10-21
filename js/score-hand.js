@@ -22,7 +22,7 @@ function scoreCards(comCards, player) {
     player.setHandRankName('Straight Flush');
     return 9;
   } else if (hasFourOfAKind(resultCards, player)) {
-    player.setHandRankName('Four Of A Kind');
+    player.setHandRankName('Quads');
     return 8;
   } else if (
     hasThreeOfAKind(resultCards, player) &&
@@ -40,13 +40,13 @@ function scoreCards(comCards, player) {
     player.setHandRankName('Straight');
     return 5;
   } else if (hasThreeOfAKind(resultCards, player)) {
-    player.setHandRankName('Three Of A Kind');
+    player.setHandRankName('Trips');
     return 4;
   } else if (hasTwoPair(resultCards, player)) {
     player.setHandRankName('Two Pair');
     return 3;
   } else if (hasOnePair(resultCards, player)) {
-    player.setHandRankName('One Pair');
+    player.setHandRankName('Pair');
     return 2;
   }
 

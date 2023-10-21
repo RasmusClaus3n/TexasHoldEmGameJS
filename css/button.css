@@ -1,8 +1,8 @@
 .nes-btn {
+  width: 100%;
   margin-top: 10px;
-  margin-bottom: 10px;
   font-size: 12px;
-  padding: 10px 20px;
+  padding: 5px 10px;
 }
 
 .nes-btn.is-primary:focus {

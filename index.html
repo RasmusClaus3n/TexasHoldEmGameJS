@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Texas Hold'em</title>
+    <title>8bit Texas Hold'em</title>
     <link rel="icon" type="image/x-icon" href="/otherImages/casino-chip.png" />
     <link rel="stylesheet" href="./node_modules/nes.css/css/nes.min.css" />
-    <!-- https://nostalgic-css.github.io/NES.css/ -->
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/players.css" />
     <link rel="stylesheet" href="css/button.css" />
-    <link rel="stylesheet" href="css/slider.css" /
+    <link rel="stylesheet" href="css/slider.css" />
+    <link rel="stylesheet" href="css/footer.css" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,7 +37,7 @@
       <div class="community-cards"></div>
 
       <div class="player-cards-row">
-        <div class="player-container nes-container is-dark with-title">
+        <div class="main-player-container nes-container is-dark with-title">
           <p class="title">YOU</p>
           <div class="main-player-content">
             <div class="player-content">
@@ -45,7 +46,7 @@
                 <p></p>
               </div>
             </div>
-            <div class="playerOptions">
+            <section class="playerOptions">
               <a class="nes-btn is-primary" href="#">CALL</a>
               <a
                 class="nes-btn is-primary"
@@ -54,41 +55,14 @@
                 >RAISE</a
               >
               <a class="nes-btn is-primary" href="#">FOLD</a>
-            </div>
+              <div class="bb-label">
+                <span class="big-blind">BB</span>
+              </div>
+            </section>
           </div>
         </div>
       </div>
     </div>
-    <!-- 
-    <section class="message-list">
-      <section class="message -left">
-        <div class="nes-balloon from-left">
-          <p style="color: black;">Hello NES.css</p>
-        </div>
-      </section> -->
-
-    <!-- <div class="pkr-btn">
-      <button>Click</button>
-    </div> -->
-
-    <!-- Dark and Rounded dialog -->
-    <dialog class="nes-dialog is-dark is-rounded" id="dialog-dark-rounded">
-      <form method="dialog">
-        <p class="title raise-money">Dark and Rounded dialog</p>
-        <input
-          type="range"
-          id="slider"
-          name="slider"
-          min="0"
-          max="100"
-          step="1"
-        />
-        <menu class="dialog-menu">
-          <button class="nes-btn">Cancel</button>
-          <button class="nes-btn is-primary">Confirm</button>
-        </menu>
-      </form>
-    </dialog>
 
     <footer>
       <section class="icon-list">
@@ -114,3 +88,15 @@
     <script src="js/game.js" type="module"></script>
   </body>
 </html>
+
+<!-- Dark and Rounded dialog -->
+<dialog class="nes-dialog is-dark is-rounded" id="dialog-dark-rounded">
+  <form method="dialog">
+    <p class="title raise-money">Dark and Rounded dialog</p>
+    <input type="range" id="slider" name="slider" min="0" max="100" step="1" />
+    <menu class="dialog-menu inline-flex">
+      <button class="nes-btn">Cancel</button>
+      <button class="nes-btn is-primary">Confirm</button>
+    </menu>
+  </form>
+</dialog>
