@@ -50,14 +50,15 @@
               </div>
             </div>
             <section class="playerOptions">
-              <a class="nes-btn is-primary" href="#">CALL</a>
+              <a class="nes-btn is-primary" id="check-call" href="#">CALL</a>
               <a
                 class="nes-btn is-primary"
+                id ="bet-raise"
                 href="#"
                 onclick="document.getElementById('dialog-dark-rounded').showModal();"
                 >RAISE</a
               >
-              <a class="nes-btn is-primary" href="#">FOLD</a>
+              <a class="nes-btn is-primary" id="fold" href="#">FOLD</a>
             </section>
           </div>
         </div>
@@ -65,7 +66,7 @@
         class="main-player-container nes-container is-dark with-title"
         id="You-container"
       ><p class="title">Pot</p>
-        <p class="pot-text">$1000</p>
+        <p class="pot-text">0</p>
         </div>
       </div>
 
@@ -106,7 +107,7 @@
     <input type="range" id="slider" name="slider" min="0" max="100" step="1" />
     <menu class="dialog-menu inline-flex">
       <button class="nes-btn">Cancel</button>
-      <button class="nes-btn is-primary">Confirm</button>
+      <button class="nes-btn is-primary" id="confirm-raise-btn">Confirm</button>
     </menu>
   </form>
 </dialog>

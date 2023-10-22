@@ -19,6 +19,8 @@ function setBlinds(allPlayers, pot, numBlindTurn) {
 
   // Append new blind markers
   appendBlindMarkers(bigBlindPlayer, smallBlindPlayer);
+
+  return pot;
 }
 
 function removeBlindMarkers() {

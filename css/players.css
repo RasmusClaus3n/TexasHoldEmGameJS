@@ -149,3 +149,8 @@
 .main-player-money {
   color: rgb(70, 228, 109);
 }
+
+.raise-money {
+  color: rgb(70, 228, 109);
+  font-size: 25px;
+}

@@ -97,7 +97,7 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
   }
 }
 
-function updateUI(mainPlayer, cpuPlayers, comCards, pot) {
+function updateUI(mainPlayer, cpuPlayers, pot) {
   // Update main player's hand rank
   mainPlayerHandRankName.textContent = mainPlayer.getHandRankName();
 
@@ -111,9 +111,11 @@ function updateUI(mainPlayer, cpuPlayers, comCards, pot) {
     const moneyText = cpuContainer.querySelector('.cpuMoney');
     moneyText.textContent = ` $${cpu.getMoney()}`;
   }
-
   // Update pot
-  potText.textContent = `$${pot}`;
+  const potTextElement = document.querySelector('.pot-text');
+  if (potTextElement) {
+    potTextElement.textContent = `$${pot}`;
+  }
 }
 
 function createHandRankNames() {}
