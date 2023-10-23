@@ -74,37 +74,36 @@ if (!cpuPlayers || !mainPlayer) {
 
 const allPlayers = [mainPlayer, ...cpuPlayers];
 
-startGame(mainPlayer, cpuPlayers, allPlayers);
+startGame(mainPlayer, cpuPlayers);
 
-function startGame(mainPlayer, cpuPlayers, allPlayers) {
-  const bm = new BettingManager();
-  const ptq = new PlayerTurnQueue();
-  const gsm = new GameStateManager();
+function startGame(mainPlayer, cpuPlayers) {
+  const bm = new BettingManager(); // Manages money to pot and remebers last made bet
+  const ptq = new PlayerTurnQueue(); // Determines player turn in round and blinds
+  const gsm = new GameStateManager(); // Stores players and manages player states
 
   addPlayersToGSM(gsm, mainPlayer, cpuPlayers);
-
-  ptq.enqueue(mainPlayer);
-  cpuPlayers.forEach((player) => ptq.enqueue(player));
+  setAllPlayersToActive(gsm);
+  addActivePlayersToPTQ(gsm, ptq);
 
   const deck = createDeck([]);
   const comCards = [];
 
   shuffleDeck(deck);
-  setMainPlayerHoleCards(mainPlayer, deck);
-  setCpuHoleCards(cpuPlayers, deck);
+  setMainPlayerHoleCards(gsm.getMainPlayer(), deck);
+  setCpuHoleCards(gsm.getCpuPlayers(), deck);
 
   // startNewStage(comCards, deck);
 
-  setHandRanks(mainPlayer, cpuPlayers, comCards);
-  displayToDOM(mainPlayer, cpuPlayers, comCards);
+  setHandRanks(gsm.getMainPlayer(), gsm.getCpuPlayers(), comCards);
+  displayToDOM(gsm.getMainPlayer(), gsm.getCpuPlayers(), comCards);
 
-  setBlinds(allPlayers, bm);
+  setBlinds(gsm.getAllPlayers(), bm);
 
-  startMainPlayerTurn(mainPlayer, ptq, bm);
+  startMainPlayerTurn(gsm.getMainPlayer(), gsm, ptq, bm); // Main player always starts first round
 
-  updateUI(mainPlayer, cpuPlayers, bm.getPot());
+  updateUI(gsm.getMainPlayer(), gsm.getCpuPlayers(), bm.getPot());
 
-  winner = rankHandRanks(mainPlayer, cpuPlayers);
+  winner = rankHandRanks(gsm.getMainPlayer(), gsm.getCpuPlayers());
   logWinner(winner);
 }
 
@@ -122,27 +121,25 @@ function startNewStage(comCards, deck) {
   }
 }
 
-function setActivePlayersToPtq(mainPlayer, cpuPlayers) {}
-
-function startMainPlayerTurn(mainPlayer, ptq, bm) {
-  updatePlayerOptionsUI(bm);
-  initiateMainPlayerRaise(bm);
+function startMainPlayerTurn(mainPlayer, gsm, ptq, bm) {
+  updatePlayerOptionsUI(bm); // UI changes if player can check/bet or call/raise/fold
+  initiateMainPlayerRaise(mainPlayer, gsm, ptq, bm); // Sets main player's max and min raise values
 }
 
-function initiateMainPlayerRaise(bm) {
+function initiateMainPlayerRaise(mainPlayer, gsm, ptq, bm) {
   const mainPlayerMoney = mainPlayer.getMoney();
 
-  // Set min and max for the slider
+  // Set min and max for the raise slider
   const slider = document.getElementById('slider');
   slider.min = bm.getCurrentBet() + 1;
   slider.max = mainPlayerMoney;
-  slider.value = slider.min; // Set default value to the minimum possible value
+  slider.value = slider.min;
 
-  // Update the textContent of the paragraph with the slider value
+  // Update default raiseMoneyText with min slider value
   const raiseMoneyText = document.querySelector('.raise-money');
   raiseMoneyText.textContent = `$${slider.min}`;
 
-  // Add event listener to update textContent when slider value changes
+  // Updates raiseMoneyText when slider value changes
   slider.addEventListener('input', function () {
     if (parseInt(this.value) === parseInt(this.max)) {
       raiseMoneyText.textContent = 'All in, baby!';
@@ -151,7 +148,6 @@ function initiateMainPlayerRaise(bm) {
     }
   });
 
-  // Add an event listener to the "Confirm" button
   confirmRaiseBtn.addEventListener('click', function () {
     const slider = document.getElementById('slider');
     const raiseAmount = parseInt(slider.value);
@@ -175,13 +171,92 @@ function initiateMainPlayerRaise(bm) {
     // Update the UI
     updateUI(mainPlayer, null, bm.getPot());
 
-    ptq.dequeue(mainPlayer);
-
-    startCpuPlayersTurn();
+    startCpuPlayersTurn(gsm, ptq, bm); // Raise is made. Turn goes over to CPU players
   });
 }
 
-function startCpuPlayersTurn() {}
+function startCpuPlayersTurn(gsm, ptq, bm) {
+  // Check for active cpu players
+
+  const cpuBehaviours = ['normal', 'safe', 'aggressive'];
+  const randomIndex = Math.floor(Math.random() * cpuBehaviours.length);
+  const cpuBehaviour = cpuBehaviours[randomIndex];
+
+  const currentCpuPlayer = ptq.getCurrentPlayer();
+  console.log('Current player: ' + currentCpuPlayer.getName());
+
+  if (currentCpuPlayer === gsm.getMainPlayer()) {
+    console.log('main player detected');
+    startMainPlayerTurn(gsm.getMainPlayer(), gsm, ptq, bm);
+  }
+
+  const cpuCanCall = checkIfCpuCanCall(currentCpuPlayer, bm);
+  const cpuHasStrongHand = checkCpuHandStrenght(currentCpuPlayer);
+
+  switch (cpuBehaviour) {
+    case 'safe':
+      if (cpuCanCall && cpuHasStrongHand) {
+        cpuCalls(currentCpuPlayer, bm);
+      } else {
+        cpuFolds(currentCpuPlayer, ptq);
+      }
+      break;
+    case 'aggressive':
+      if (cpuCanCall) {
+        cpuRaises(currentCpuPlayer, bm);
+      } else {
+        cpuFolds(currentCpuPlayer, ptq);
+      }
+      break;
+    case 'normal':
+      if (cpuCanCall) {
+        cpuCalls(currentCpuPlayer, bm);
+      } else {
+        cpuFolds(currentCpuPlayer, ptq);
+      }
+  }
+
+  function checkCpuHandStrenght(currentCpuPlayer) {
+    const cpuPlayerFirstCard = currentCpuPlayer.getHand()[0].getValue();
+    const cpuPlayerSecondCard = currentCpuPlayer.getHand()[1].getValue();
+    if (cpuPlayerFirstCard > 10 && cpuPlayerSecondCard > 10) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function checkIfCpuCanCall(currentCpuPlayer, bm) {
+    if (currentCpuPlayer.getMoney() >= bm.getCurrentBet()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function cpuCalls(currentCpuPlayer, bm) {
+    console.log(currentCpuPlayer.getName() + ' calls');
+    const cpuCallAmount = bm.getCurrentBet();
+    currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
+    bm.addToPot(cpuCallAmount);
+  }
+
+  function cpuRaises(currentCpuPlayer, bm) {
+    console.log(currentCpuPlayer.getName() + ' raises');
+    if (currentCpuPlayer.getMoney() >= bm.getCurrentBet() * 5) {
+      const cpuCallAmount = bm.getCurrentBet() * 5;
+      currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
+      bm.addToPot(cpuCallAmount);
+    } else {
+      cpuFolds(currentCpuPlayer);
+    }
+  }
+
+  function cpuFolds(currentCpuPlayer, ptq) {
+    console.log(currentCpuPlayer.getName() + ' folds');
+    ptq.dequeue(currentCpuPlayer);
+  }
+}
 
 function createCPUplayers() {
   let cpuPlayers = [];
@@ -242,8 +317,17 @@ function updatePlayerOptionsUI(bm) {
 function addPlayersToGSM(gsm, mainPlayer, cpuPlayers) {
   gsm.addMainPlayer(mainPlayer);
   cpuPlayers.forEach((cpuPlayer) => {
-    gsm.addCpuPlayer(mainPlayer);
+    gsm.addCpuPlayer(cpuPlayer);
   });
+}
+
+function setAllPlayersToActive(gsm) {
+  gsm.setActive(gsm.getMainPlayer(), true);
+  gsm.getCpuPlayers().forEach((cpuPlayer) => gsm.setActive(cpuPlayer, true));
+}
+
+function addActivePlayersToPTQ(gsm, ptq) {
+  gsm.getActivePlayers().forEach((player) => ptq.enqueue(player));
 }
 
 foldBtn.addEventListener('click', function (ptq) {

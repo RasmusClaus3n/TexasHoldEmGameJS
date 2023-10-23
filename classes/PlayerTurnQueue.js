@@ -22,6 +22,11 @@ class PlayerTurnQueue {
     return this.items[this.frontIndex];
   }
 
+  getPreviousPlayer() {
+    const previousIndex = this.frontIndex - 1;
+    return this.items[previousIndex];
+  }
+
   get printQueue() {
     return this.items;
   }

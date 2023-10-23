@@ -20,7 +20,6 @@ function createDeck(cards) {
 
     cards.push(card);
   }
-
   // Assigning values to each card in deck
   for (let i = 0; i < 52; i++) {
     let value = (i % 13) + 2;

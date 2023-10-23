@@ -2,7 +2,7 @@ import Player from '../classes/Player.js';
 
 class GameStateManager {
   constructor() {
-    this.allPlayers = []; // Add a new attribute to store all players
+    this.allPlayers = [];
     this.cpuPlayers = [];
     this.mainPlayer = null;
     this.activePlayers = [];
@@ -10,20 +10,23 @@ class GameStateManager {
 
   addMainPlayer(player) {
     this.mainPlayer = player;
-    this.allPlayers.push(player); // Add player to allPlayers
+    this.allPlayers.push(player);
   }
 
   addCpuPlayer(player) {
     this.cpuPlayers.push(player);
-    this.allPlayers.push(player); // Add player to allPlayers
+    this.allPlayers.push(player);
   }
 
   setActive(player, isActive) {
     player.setIsActive(isActive);
 
-    this.activePlayers = [...this.cpuPlayers, this.mainPlayer].filter(
-      (player) => player.getIsActive()
-    );
+    if (isActive && !this.activePlayers.includes(player)) {
+      this.activePlayers.push(player);
+    } else if (!isActive && this.activePlayers.includes(player)) {
+      const index = this.activePlayers.indexOf(player);
+      this.activePlayers.splice(index, 1);
+    }
   }
 
   getMainPlayer() {
