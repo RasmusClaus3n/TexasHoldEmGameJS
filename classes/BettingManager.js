@@ -4,19 +4,19 @@ class BettingManager {
     this.smallBlind = 1;
     this.blindTurn = 0;
     this.pot = 0;
-    this.lastBet = 0;
+    this.currentBet = 0;
   }
 
   getPot() {
     return this.pot;
   }
 
-  setLastBet(amount) {
-    this.lastBet = amount;
+  setCurrentBet(amount) {
+    this.currentBet = amount;
   }
 
-  getLastBet() {
-    return this.lastBet;
+  getCurrentBet() {
+    return this.currentBet;
   }
 
   getBigBlind() {

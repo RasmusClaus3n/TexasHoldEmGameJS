@@ -1,16 +1,17 @@
 import Player from '../classes/Player.js';
 import BettingManager from '../classes/BettingManager.js';
+import PlayerTurnQueue from '../classes/PlayerTurnQueue.js';
+import GameStateManager from '../classes/GameStateManager.js';
+
 import {
   createDeck,
-  createHand,
   createFlop,
   createTurnOrRiver,
-  createTestFlop,
-  createMainPlayerTestHand,
-  createCPU1TestHand,
-  createCPU2TestHand,
+  setMainPlayerHoleCards,
+  setCpuHoleCards,
+  shuffleDeck,
 } from './deck-manager.js';
-import { scoreCards } from './score-hand.js';
+import { setHandRanks } from './score-hand.js';
 import { rankHandRanks } from './determine-winner.js';
 import { displayToDOM, updateUI } from './dom-handler.js';
 import { setBlinds } from './blinds.js';
@@ -76,7 +77,14 @@ const allPlayers = [mainPlayer, ...cpuPlayers];
 startGame(mainPlayer, cpuPlayers, allPlayers);
 
 function startGame(mainPlayer, cpuPlayers, allPlayers) {
-  const bettingManager = new BettingManager();
+  const bm = new BettingManager();
+  const ptq = new PlayerTurnQueue();
+  const gsm = new GameStateManager();
+
+  addPlayersToGSM(gsm, mainPlayer, cpuPlayers);
+
+  ptq.enqueue(mainPlayer);
+  cpuPlayers.forEach((player) => ptq.enqueue(player));
 
   const deck = createDeck([]);
   const comCards = [];
@@ -85,18 +93,16 @@ function startGame(mainPlayer, cpuPlayers, allPlayers) {
   setMainPlayerHoleCards(mainPlayer, deck);
   setCpuHoleCards(cpuPlayers, deck);
 
-  startNewStage(comCards, deck);
+  // startNewStage(comCards, deck);
 
   setHandRanks(mainPlayer, cpuPlayers, comCards);
   displayToDOM(mainPlayer, cpuPlayers, comCards);
 
-  setBlinds(allPlayers, bettingManager);
+  setBlinds(allPlayers, bm);
 
-  updatePlayerOptionsUI(bettingManager);
+  startMainPlayerTurn(mainPlayer, ptq, bm);
 
-  initiateMainPlayerRaise(bettingManager);
-
-  updateUI(mainPlayer, cpuPlayers, bettingManager.getPot());
+  updateUI(mainPlayer, cpuPlayers, bm.getPot());
 
   winner = rankHandRanks(mainPlayer, cpuPlayers);
   logWinner(winner);
@@ -116,24 +122,19 @@ function startNewStage(comCards, deck) {
   }
 }
 
-function updatePlayerOptionsUI(bettingManager) {
-  if (bettingManager.getLastBet() === 0) {
-    callCheckBtn.textContent = 'Check';
-    betRaiseBtn.textContent = 'Bet';
-    foldBtn.classList.add('hidden');
-  } else {
-    callCheckBtn.textContent = 'Call';
-    betRaiseBtn.textContent = 'Raise';
-    foldBtn.classList.remove('hidden');
-  }
+function setActivePlayersToPtq(mainPlayer, cpuPlayers) {}
+
+function startMainPlayerTurn(mainPlayer, ptq, bm) {
+  updatePlayerOptionsUI(bm);
+  initiateMainPlayerRaise(bm);
 }
 
-function initiateMainPlayerRaise(bettingManager) {
+function initiateMainPlayerRaise(bm) {
   const mainPlayerMoney = mainPlayer.getMoney();
 
   // Set min and max for the slider
   const slider = document.getElementById('slider');
-  slider.min = bettingManager.getLastBet() + 1;
+  slider.min = bm.getCurrentBet() + 1;
   slider.max = mainPlayerMoney;
   slider.value = slider.min; // Set default value to the minimum possible value
 
@@ -157,13 +158,13 @@ function initiateMainPlayerRaise(bettingManager) {
 
     if (raiseAmount >= mainPlayer.getMoney()) {
       // If the raise is equal to or more than the main player's money, it's an "All In"
-      bettingManager.addToPot(mainPlayer.getMoney());
+      bm.addToPot(mainPlayer.getMoney());
       mainPlayer.setMoney(0);
-      bettingManager.setLastBet(mainPlayer.getMoney());
+      bm.setCurrentBet(mainPlayer.getMoney());
     } else {
-      bettingManager.addToPot(raiseAmount);
+      bm.addToPot(raiseAmount);
       mainPlayer.setMoney(mainPlayer.getMoney() - raiseAmount);
-      bettingManager.setLastBet(raiseAmount);
+      bm.setCurrentBet(raiseAmount);
     }
 
     // Reset the slider value and text
@@ -172,9 +173,15 @@ function initiateMainPlayerRaise(bettingManager) {
     raiseMoneyText.textContent = `$${slider.min}`;
 
     // Update the UI
-    updateUI(mainPlayer, cpuPlayers, bettingManager.getPot());
+    updateUI(mainPlayer, null, bm.getPot());
+
+    ptq.dequeue(mainPlayer);
+
+    startCpuPlayersTurn();
   });
 }
+
+function startCpuPlayersTurn() {}
 
 function createCPUplayers() {
   let cpuPlayers = [];
@@ -206,33 +213,6 @@ function createMainPlayer() {
   return mainPlayer;
 }
 
-function setCpuHoleCards(cpuPlayers, deck) {
-  cpuPlayers.forEach((cpu) => {
-    let cpuCards = [];
-    cpu.setHand(createHand(deck, cpuCards));
-  });
-}
-
-function setMainPlayerHoleCards(mainPlayer, deck) {
-  let mainPlayerCards = [];
-  mainPlayer.setHand(createHand(deck, mainPlayerCards));
-  // mainPlayer.setHand(createMainPlayerTestHand(deck, mainPlayerCards));
-}
-
-function setHandRanks(mainPlayer, cpuPlayers, comCards) {
-  mainPlayer.setHandRank(scoreCards(comCards, mainPlayer));
-  for (let cpu of cpuPlayers) {
-    cpu.setHandRank(scoreCards(comCards, cpu));
-  }
-}
-
-function shuffleDeck(deck) {
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-}
-
 function logWinner(winner) {
   console.log(winner);
 
@@ -246,5 +226,28 @@ function logWinner(winner) {
     // winner.setMoney(winner.getMoney() + pot);
   }
 }
+
+function updatePlayerOptionsUI(bm) {
+  if (bm.getCurrentBet() === 0) {
+    callCheckBtn.textContent = 'Check';
+    betRaiseBtn.textContent = 'Bet';
+    foldBtn.classList.add('hidden');
+  } else {
+    callCheckBtn.textContent = 'Call';
+    betRaiseBtn.textContent = 'Raise';
+    foldBtn.classList.remove('hidden');
+  }
+}
+
+function addPlayersToGSM(gsm, mainPlayer, cpuPlayers) {
+  gsm.addMainPlayer(mainPlayer);
+  cpuPlayers.forEach((cpuPlayer) => {
+    gsm.addCpuPlayer(mainPlayer);
+  });
+}
+
+foldBtn.addEventListener('click', function (ptq) {
+  ptq.dequeue(mainPlayer);
+});
 
 export { mainPlayer, cpuPlayers, allPlayers };

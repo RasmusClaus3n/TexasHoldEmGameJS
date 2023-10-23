@@ -72,4 +72,11 @@ function setHighCard(resultCards) {
   return cardVals;
 }
 
-export { scoreCards };
+function setHandRanks(mainPlayer, cpuPlayers, comCards) {
+  mainPlayer.setHandRank(scoreCards(comCards, mainPlayer));
+  for (let cpu of cpuPlayers) {
+    cpu.setHandRank(scoreCards(comCards, cpu));
+  }
+}
+
+export { scoreCards, setHandRanks };

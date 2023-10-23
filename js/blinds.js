@@ -1,20 +1,20 @@
-function setBlinds(allPlayers, bettingManager) {
-  let smallBlind = bettingManager.getSmallBlind();
-  let bigBlind = bettingManager.getBigBlind();
+function setBlinds(allPlayers, bm) {
+  let smallBlind = bm.getSmallBlind();
+  let bigBlind = bm.getBigBlind();
   let blindsTotal = smallBlind + bigBlind;
 
-  let blindTurn = bettingManager.getBlindTurn();
+  let blindTurn = bm.getBlindTurn();
 
   let numPlayers = allPlayers.length;
-  let bigBlindPlayer = allPlayers[blindTurn % numPlayers];
-  let smallBlindPlayer = allPlayers[(blindTurn + 1) % numPlayers];
+  let smallBlindPlayer = allPlayers[blindTurn % numPlayers];
+  let bigBlindPlayer = allPlayers[(blindTurn + 1) % numPlayers];
 
   bigBlindPlayer.setMoney(bigBlindPlayer.getMoney() - bigBlind);
   smallBlindPlayer.setMoney(smallBlindPlayer.getMoney() - smallBlind);
 
-  bettingManager.addToPot(blindsTotal);
+  bm.addToPot(blindsTotal);
 
-  bettingManager.increaseBlindTurn(1);
+  bm.increaseBlindTurn(1);
 
   removeBlindMarkers();
   appendBlindMarkers(bigBlindPlayer, smallBlindPlayer);

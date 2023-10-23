@@ -98,23 +98,30 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
 }
 
 function updateUI(mainPlayer, cpuPlayers, pot) {
-  // Update main player's hand rank
-  mainPlayerHandRankName.textContent = mainPlayer.getHandRankName();
-
-  // Update main player's money
-  const moneyText = document.querySelector('.main-player-money');
-  moneyText.textContent = `$${mainPlayer.getMoney()}`;
+  if (mainPlayer != null) {
+    // Update main player's hand rank
+    mainPlayerHandRankName.textContent = mainPlayer.getHandRankName();
+    // Update main player's money
+    const moneyText = document.querySelector('.main-player-money');
+    moneyText.textContent = `$${mainPlayer.getMoney()}`;
+  }
 
   // Update CPU players' money
-  for (const cpu of cpuPlayers) {
-    const cpuContainer = document.getElementById(`${cpu.getName()}-container`);
-    const moneyText = cpuContainer.querySelector('.cpuMoney');
-    moneyText.textContent = ` $${cpu.getMoney()}`;
+  if (cpuPlayers != null) {
+    for (const cpu of cpuPlayers) {
+      const cpuContainer = document.getElementById(
+        `${cpu.getName()}-container`
+      );
+      const moneyText = cpuContainer.querySelector('.cpuMoney');
+      moneyText.textContent = ` $${cpu.getMoney()}`;
+    }
   }
-  // Update pot
-  const potTextElement = document.querySelector('.pot-text');
-  if (potTextElement) {
-    potTextElement.textContent = `$${pot}`;
+  if (pot != null) {
+    // Update pot
+    const potTextElement = document.querySelector('.pot-text');
+    if (potTextElement) {
+      potTextElement.textContent = `$${pot}`;
+    }
   }
 }
 

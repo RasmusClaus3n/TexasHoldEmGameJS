@@ -135,6 +135,19 @@ function createTestFlop(deck, comCards) {
   comCards.push(deck[4]);
 }
 
+function setCpuHoleCards(cpuPlayers, deck) {
+  cpuPlayers.forEach((cpu) => {
+    let cpuCards = [];
+    cpu.setHand(createHand(deck, cpuCards));
+  });
+}
+
+function setMainPlayerHoleCards(mainPlayer, deck) {
+  let mainPlayerCards = [];
+  mainPlayer.setHand(createHand(deck, mainPlayerCards));
+  // mainPlayer.setHand(createMainPlayerTestHand(deck, mainPlayerCards));
+}
+
 function createMainPlayerTestHand(deck, playerCards) {
   playerCards.push(deck[0]);
   playerCards.push(deck[24]);
@@ -154,6 +167,13 @@ function createCPU2TestHand(deck, playerCards) {
   return playerCards; // Returns the player cards
 }
 
+function shuffleDeck(deck) {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+}
+
 export {
   createDeck,
   createHand,
@@ -163,4 +183,7 @@ export {
   createMainPlayerTestHand,
   createCPU1TestHand,
   createCPU2TestHand,
+  setCpuHoleCards,
+  setMainPlayerHoleCards,
+  shuffleDeck,
 };
