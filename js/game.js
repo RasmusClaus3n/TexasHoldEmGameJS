@@ -1,4 +1,5 @@
 import Player from '../classes/Player.js';
+import BettingManager from '../classes/BettingManager.js';
 import {
   createDeck,
   createHand,
@@ -64,31 +65,19 @@ const randomNames = [
 let cpuPlayers;
 let mainPlayer;
 let winner;
-let blindTurnNum;
-let playerTurnNum;
-let lastBet;
-let pot;
 
 if (!cpuPlayers || !mainPlayer) {
   cpuPlayers = createCPUplayers();
   mainPlayer = createMainPlayer();
-  blindTurnNum = 0;
-  pot = 0;
-  lastBet = 0;
 }
 
 const allPlayers = [mainPlayer, ...cpuPlayers];
 
-startGame(mainPlayer, cpuPlayers, allPlayers, pot, blindTurnNum, lastBet);
+startGame(mainPlayer, cpuPlayers, allPlayers);
 
-function startGame(
-  mainPlayer,
-  cpuPlayers,
-  allPlayers,
-  pot,
-  playerTurnNum,
-  blindTurnNum
-) {
+function startGame(mainPlayer, cpuPlayers, allPlayers) {
+  const bettingManager = new BettingManager();
+
   const deck = createDeck([]);
   const comCards = [];
 
@@ -100,24 +89,17 @@ function startGame(
 
   setHandRanks(mainPlayer, cpuPlayers, comCards);
   displayToDOM(mainPlayer, cpuPlayers, comCards);
-  pot = setBlinds(allPlayers, pot, blindTurnNum);
 
-  setPlayerOptionsUI(lastBet);
+  setBlinds(allPlayers, bettingManager);
 
-  const potAndLastBet = setMoneyToBeRaised(lastBet, pot);
-  pot = potAndLastBet.pot;
-  lastBet = potAndLastBet.lastBet;
+  updatePlayerOptionsUI(bettingManager);
 
-  mainPlayerTurn(mainPlayer);
+  initiateMainPlayerRaise(bettingManager);
 
-  updateUI(mainPlayer, cpuPlayers, pot);
+  updateUI(mainPlayer, cpuPlayers, bettingManager.getPot());
 
   winner = rankHandRanks(mainPlayer, cpuPlayers);
   logWinner(winner);
-}
-
-function mainPlayerTurn(mainPlayer) {
-  initiateCPUTurns();
 }
 
 function startNewStage(comCards, deck) {
@@ -134,62 +116,8 @@ function startNewStage(comCards, deck) {
   }
 }
 
-function startGameCycle(allPlayers) {
-  const activePlayers = allPlayers.filter((player) => player.isActive);
-  const activeCPUPlayers = activePlayers.filter(
-    (player) => player !== mainPlayer
-  );
-
-  if (lastBet === 0 && activeCPUPlayers.length > 0) {
-    initiateCPUTurns(activeCPUPlayers);
-  } else if (lastBet > 0) {
-    // Main player's turn is complete, proceed with the next stage or showdown
-  }
-
-  setPlayerOptionsUI(lastBet); // Update UI options based on last bet
-}
-
-function initiateCPUTurns(activeCPUPlayers) {
-  let currentIndex = 0;
-
-  function playNextCPU() {
-    const currentPlayer = activeCPUPlayers[currentIndex];
-    const callAmount = lastBet; // Call the current bet
-
-    if (callAmount === 0) {
-      // Player can check, no need to do anything
-      console.log(`${currentPlayer.getName()} checks.`);
-    } else {
-      // Player needs to call
-      console.log(`${currentPlayer.getName()} calls ${callAmount}.`);
-      const potAndLastBet = cpuCall(currentPlayer, callAmount, pot);
-      pot = potAndLastBet.pot;
-      lastBet = potAndLastBet.lastBet;
-    }
-
-    currentIndex++;
-
-    if (currentIndex < activeCPUPlayers.length) {
-      setTimeout(playNextCPU, 1000); // Set a timeout for next player's turn
-    } else {
-      // All CPU players have played, proceed with next stage or showdown
-    }
-  }
-
-  updateUI(mainPlayer, cpuPlayers, pot);
-  playNextCPU(); // Start the CPU player turns
-}
-
-function cpuCall(cpuPlayer, lastBet, pot) {
-  if (cpuPlayer.getMoney() >= lastBet) {
-    cpuPlayer.setMoney(cpuPlayer.getMoney() - lastBet);
-    pot += lastBet;
-  }
-  return { pot, lastBet };
-}
-
-function setPlayerOptionsUI(lastBet) {
-  if (lastBet === 0) {
+function updatePlayerOptionsUI(bettingManager) {
+  if (bettingManager.getLastBet() === 0) {
     callCheckBtn.textContent = 'Check';
     betRaiseBtn.textContent = 'Bet';
     foldBtn.classList.add('hidden');
@@ -200,12 +128,12 @@ function setPlayerOptionsUI(lastBet) {
   }
 }
 
-function setMoneyToBeRaised(lastBet, pot) {
+function initiateMainPlayerRaise(bettingManager) {
   const mainPlayerMoney = mainPlayer.getMoney();
 
   // Set min and max for the slider
   const slider = document.getElementById('slider');
-  slider.min = lastBet + 1;
+  slider.min = bettingManager.getLastBet() + 1;
   slider.max = mainPlayerMoney;
   slider.value = slider.min; // Set default value to the minimum possible value
 
@@ -228,14 +156,14 @@ function setMoneyToBeRaised(lastBet, pot) {
     const raiseAmount = parseInt(slider.value);
 
     if (raiseAmount >= mainPlayer.getMoney()) {
-      // If the raise is equal to or more than the main player's money, it's an "All In" w
-      pot += mainPlayer.getMoney();
+      // If the raise is equal to or more than the main player's money, it's an "All In"
+      bettingManager.addToPot(mainPlayer.getMoney());
       mainPlayer.setMoney(0);
-      lastBet = mainPlayer.getMoney();
+      bettingManager.setLastBet(mainPlayer.getMoney());
     } else {
-      pot += raiseAmount;
+      bettingManager.addToPot(raiseAmount);
       mainPlayer.setMoney(mainPlayer.getMoney() - raiseAmount);
-      lastBet = raiseAmount;
+      bettingManager.setLastBet(raiseAmount);
     }
 
     // Reset the slider value and text
@@ -244,9 +172,8 @@ function setMoneyToBeRaised(lastBet, pot) {
     raiseMoneyText.textContent = `$${slider.min}`;
 
     // Update the UI
-    updateUI(mainPlayer, cpuPlayers, pot);
+    updateUI(mainPlayer, cpuPlayers, bettingManager.getPot());
   });
-  return { pot, lastBet };
 }
 
 function createCPUplayers() {

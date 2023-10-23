@@ -1,26 +1,23 @@
-function setBlinds(allPlayers, pot, numBlindTurn) {
-  let smallBlind = 1;
-  let bigBlind = 5;
+function setBlinds(allPlayers, bettingManager) {
+  let smallBlind = bettingManager.getSmallBlind();
+  let bigBlind = bettingManager.getBigBlind();
   let blindsTotal = smallBlind + bigBlind;
 
+  let blindTurn = bettingManager.getBlindTurn();
+
   let numPlayers = allPlayers.length;
-  let bigBlindPlayer = allPlayers[numBlindTurn % numPlayers];
-  let smallBlindPlayer = allPlayers[(numBlindTurn + 1) % numPlayers];
+  let bigBlindPlayer = allPlayers[blindTurn % numPlayers];
+  let smallBlindPlayer = allPlayers[(blindTurn + 1) % numPlayers];
 
   bigBlindPlayer.setMoney(bigBlindPlayer.getMoney() - bigBlind);
   smallBlindPlayer.setMoney(smallBlindPlayer.getMoney() - smallBlind);
 
-  pot += blindsTotal;
+  bettingManager.addToPot(blindsTotal);
 
-  numBlindTurn++; // Maybe change to turn for main game cycle
+  bettingManager.increaseBlindTurn(1);
 
-  // Remove existing blind markers before appending new ones
   removeBlindMarkers();
-
-  // Append new blind markers
   appendBlindMarkers(bigBlindPlayer, smallBlindPlayer);
-
-  return pot;
 }
 
 function removeBlindMarkers() {
