@@ -12,6 +12,7 @@ class Player {
     pairs,
     uniquePairs,
 
+    isMainPlayer,
     isActive,
     isBust,
     hasCalled,
@@ -39,11 +40,13 @@ class Player {
     this.pairs = pairs;
     this.uniquePairs = uniquePairs;
 
+    this.isMainPlayer = false;
     this.isActive = true;
     this.isBust = false;
     this.hasCalled = false;
     this.hasRaised = false;
-    (this.hasBigBlind = false), (this.hasSmallBlind = false);
+    this.hasBigBlind = false;
+    this.hasSmallBlind = false;
 
     this.highPairValue = highPairValue;
     this.lowPairValue = lowPairValue;
@@ -119,6 +122,14 @@ class Player {
   }
   setUniquePairs(uniquePairs) {
     this.uniquePairs = uniquePairs;
+  }
+
+  getIsMainPlayer() {
+    return this.isMainPlayer;
+  }
+
+  setIsMainPlayer(isMainPlayer) {
+    return (this.isMainPlayer = isMainPlayer);
   }
 
   getIsActive() {

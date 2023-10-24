@@ -5,14 +5,23 @@ class PlayerTurnQueue {
     this.backIndex = 0;
   }
 
-  enqueue(item) {
-    this.items[this.backIndex] = item;
-    this.backIndex++;
-    return item + ' inserted';
+  enqueue(player) {
+    if (player.isActive) {
+      this.items[this.backIndex] = player;
+      this.backIndex++;
+      console.log(`Player ${player.getName()} was queued.`);
+      return player + ' inserted';
+    } else {
+      console.log(
+        `Player ${player.getName()} is not active and cannot be enqueued.`
+      );
+      return null;
+    }
   }
 
   dequeue() {
     const item = this.items[this.frontIndex];
+    console.log(`Player ${item.getName()} was dequeued.`);
     delete this.items[this.frontIndex];
     this.frontIndex++;
     return item;
@@ -34,57 +43,25 @@ class PlayerTurnQueue {
     return this.items[previousIndex];
   }
 
-  removeInactivePlayers() {
-    const activeItems = {};
-
-    for (let i = this.frontIndex; i < this.backIndex; i++) {
-      const item = this.items[i];
-      if (item.isActive) {
-        activeItems[i] = item;
-      }
-    }
-
-    this.items = activeItems;
-    this.backIndex = this.frontIndex + Object.keys(activeItems).length;
-  }
-
-  allPlayersHaveCalled() {
+  getMainPlayerFromQ() {
     for (let i = this.frontIndex; i < this.backIndex; i++) {
       const player = this.items[i];
-      if (player && !player.hasCalled) {
-        return false; // Found a player who hasn't called
+      if (player.isMainPlayer) {
+        return player;
       }
     }
-    return true; // All players in the queue have called
+    return null; // Return null if main player not found
   }
 
-  anyCpuPlayerHasRaised() {
+  getCpuPlayersFromQ() {
+    const otherPlayers = [];
     for (let i = this.frontIndex; i < this.backIndex; i++) {
-      const currentPlayer = this.items[i];
-
-      if (
-        currentPlayer &&
-        currentPlayer !== mainPlayer &&
-        currentPlayer.hasRaised
-      ) {
-        return true; // Found a player (other than "You") who has raised
+      const player = this.items[i];
+      if (!player.isMainPlayer) {
+        otherPlayers.push(player);
       }
     }
-    return false; // No player (other than "You") in the queue has raised
-  }
-
-  hasMainPlayerRaised() {
-    for (let i = this.frontIndex; i < this.backIndex; i++) {
-      const currentPlayer = this.items[i];
-      if (
-        currentPlayer &&
-        currentPlayer.getName() === 'You' &&
-        currentPlayer.hasRaised
-      ) {
-        return true; // The player named "You" has raised
-      }
-    }
-    return false; // The player named "You" has not raised
+    return otherPlayers;
   }
 
   get printQueue() {

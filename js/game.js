@@ -81,6 +81,8 @@ function startGame(mainPlayer, cpuPlayers) {
   const ptq = new PlayerTurnQueue(); // Determines player turn in round and blinds
   const gsm = new GameStateManager(); // Stores players and manages player states
 
+  mainPlayer.setIsMainPlayer(true);
+
   addPlayersToGSM(gsm, mainPlayer, cpuPlayers);
   setAllPlayersToActive(gsm);
   addActivePlayersToPTQ(gsm, ptq);
@@ -99,7 +101,7 @@ function startGame(mainPlayer, cpuPlayers) {
 
   setBlinds(gsm.getAllPlayers(), bm);
 
-  startMainPlayerTurn(gsm.getMainPlayer(), gsm, ptq, bm); // Main player always starts first round
+  startMainPlayerTurn(gsm.getMainPlayer(), ptq, bm); // Main player always starts first round
 
   updateUI(gsm.getMainPlayer(), gsm.getCpuPlayers(), bm.getPot());
 
@@ -113,38 +115,14 @@ function startGame(mainPlayer, cpuPlayers) {
   });
 }
 
-function startNewStage(comCards, deck) {
-  let isFlop = false;
-  let isTurn = false;
-  let isRiver = false;
+function determineTurn(ptq) {}
 
-  if (comCards.length === 0) {
-    isFlop = true;
-    createFlop(deck, comCards);
-  } else if (comCards.length === 3) {
-    isFlop = false;
-    createTurnOrRiver(deck, comCards);
-  }
-}
-
-function startMainPlayerTurn(mainPlayer, gsm, ptq, bm) {
-  if (ptq.allPlayersHaveCalled() && !anyCpuPlayerHasRaised()) {
-    console.log('ABORT');
-    console.log('current player:' + ptq.getCurrentPlayer().getName());
-  } else {
-    console.log('a player has raised');
-    startNextTurn(ptq, gsm, bm);
-  }
-
-  console.log('Main players turn');
-  console.log(
-    'This should be main player: ' + ptq.getCurrentPlayer().getName()
-  );
+function startMainPlayerTurn(mainPlayer, ptq, bm) {
   updatePlayerOptionsUI(bm); // UI changes if player can check/bet or call/raise/fold
-  initiateMainPlayerRaise(mainPlayer, gsm, ptq, bm); // Sets main player's max and min raise values
+  initiateMainPlayerRaise(mainPlayer, ptq, bm); // Sets main player's max and min raise values
 }
 
-function initiateMainPlayerRaise(mainPlayer, gsm, ptq, bm) {
+function initiateMainPlayerRaise(mainPlayer, ptq, bm) {
   const mainPlayerMoney = mainPlayer.getMoney();
 
   // Set min and max for the raise slider
@@ -191,49 +169,36 @@ function initiateMainPlayerRaise(mainPlayer, gsm, ptq, bm) {
 
     ptq.dequeue(mainPlayer);
 
-    mainPlayer.hasRaised = true;
-
-    determineRoundEnd(ptq, gsm, bm);
+    determineRound(mainPlayer, ptq, bm);
   });
 }
 
-function determineRoundEnd(ptq, gsm, bm) {
-  ptq.removeInactivePlayers();
-  addActivePlayersToPTQ(gsm, ptq);
-  if (ptq.allPlayersHaveCalled() && !ptq.hasCpuPlayersRaised()) {
-    console.log('ABORT');
-    console.log('current player:' + ptq.getCurrentPlayer().getName());
-  } else {
-    console.log('a player has raised');
-    startNextTurn(ptq, gsm, bm);
-  }
-}
-
-function startNextTurn(ptq, gsm, bm) {
+function determineRound(mainPlayer, ptq, bm) {
   const currentPlayer = ptq.getCurrentPlayer();
 
-  highLightPlayer(currentPlayer);
+  if (mainPlayer != null) {
+    ptq.enqueue(mainPlayer);
+  }
 
-  console.log(ptq.printQueue);
-
-  setTimeout(() => {
-    if (currentPlayer !== mainPlayer) {
-      stopHightLightPlayer(currentPlayer);
-      startCpuPlayerTurn(gsm, ptq, bm, currentPlayer);
-    } else {
-      startMainPlayerTurn(gsm.getMainPlayer(), gsm, ptq, bm);
-    }
-  }, 1000);
+  if (!currentPlayer.getIsMainPlayer()) {
+    startNextTurn(currentPlayer, ptq, bm);
+  } else {
+    console.log('Woops');
+  }
 }
 
-function startCpuPlayerTurn(gsm, ptq, bm, currentCpuPlayer) {
-  const cpuCanCall = checkIfCpuCanCall(currentCpuPlayer, bm);
-  if (cpuCanCall) {
-    cpuCalls(currentCpuPlayer, bm);
-    updateUI(gsm.getMainPlayer(), gsm.getCpuPlayers(), bm.getPot());
+function startNextTurn(currentPlayer, ptq, bm) {
+  if (currentPlayer.getIsMainPlayer(true)) {
+    startMainPlayerTurn(ptq.getMainPlayerFromQ(), ptq, bm);
+  } else {
+    startNextCpuTurn(currentPlayer, ptq, bm);
   }
-  ptq.dequeue(currentCpuPlayer); // Remove current player from queue
-  startNextTurn(ptq, gsm, bm); // Call the next turn (CPU player's turn)
+}
+
+function startNextCpuTurn(currentCpuPlayer, ptq, bm) {
+  if (checkIfCpuCanCall(currentCpuPlayer, bm, ptq)) {
+    cpuCalls(currentCpuPlayer, bm, ptq);
+  }
 }
 
 function checkIfCpuCanCall(currentCpuPlayer, bm) {
@@ -242,6 +207,27 @@ function checkIfCpuCanCall(currentCpuPlayer, bm) {
   } else {
     return false;
   }
+}
+
+function cpuCalls(currentCpuPlayer, bm, ptq) {
+  const cpuCallAmount = bm.getCurrentBet();
+
+  console.log(currentCpuPlayer.getName() + ' calls with ' + cpuCallAmount);
+
+  currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
+  bm.addToPot(cpuCallAmount);
+  currentCpuPlayer.hasCalled = true;
+  ptq.dequeue(currentCpuPlayer);
+  ptq.enqueue(currentCpuPlayer);
+
+  testFunction(ptq, bm);
+
+  startNextTurn(ptq.getCurrentPlayer(), ptq, bm);
+}
+
+function testFunction(ptq, bm) {
+  console.log(ptq.getCurrentPlayer());
+  updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
 }
 
 function setCpuBehaviour() {
@@ -260,14 +246,6 @@ function checkCpuHandStrenght(currentCpuPlayer) {
   } else {
     return false;
   }
-}
-
-function cpuCalls(currentCpuPlayer, bm) {
-  console.log(currentCpuPlayer.getName() + ' calls');
-  const cpuCallAmount = bm.getCurrentBet();
-  currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
-  bm.addToPot(cpuCallAmount);
-  currentCpuPlayer.hasCalled = true;
 }
 
 function cpuRaises(currentCpuPlayer, bm) {
@@ -367,7 +345,7 @@ function addActivePlayersToPTQ(gsm, ptq) {
       }
     }
 
-    if (!isAlreadyInQueue) {
+    if (!isAlreadyInQueue && player.getIsBust() === false) {
       ptq.enqueue(player);
     }
   });
@@ -386,6 +364,20 @@ function stopHightLightPlayer(player) {
     player.getName() + '-container'
   );
   playerContainer.classList.remove('blinking-border');
+}
+
+function startNewStage(comCards, deck) {
+  let isFlop = false;
+  let isTurn = false;
+  let isRiver = false;
+
+  if (comCards.length === 0) {
+    isFlop = true;
+    createFlop(deck, comCards);
+  } else if (comCards.length === 3) {
+    isFlop = false;
+    createTurnOrRiver(deck, comCards);
+  }
 }
 
 export { mainPlayer, cpuPlayers, allPlayers };
