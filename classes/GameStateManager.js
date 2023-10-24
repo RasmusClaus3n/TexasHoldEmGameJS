@@ -29,6 +29,14 @@ class GameStateManager {
     }
   }
 
+  allPlayersHaveCalled() {
+    return this.activePlayers.every((player) => player.hasCalled);
+  }
+
+  anyPlayersHasRaised() {
+    return this.activePlayers.some((player) => player.hasRaised);
+  }
+
   getMainPlayer() {
     return this.mainPlayer;
   }

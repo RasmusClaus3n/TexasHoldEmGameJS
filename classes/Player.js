@@ -14,6 +14,10 @@ class Player {
 
     isActive,
     isBust,
+    hasCalled,
+    hasRaised,
+    hasBigBlind,
+    hasSmallBlind,
 
     highPairValue,
     lowPairValue,
@@ -37,6 +41,9 @@ class Player {
 
     this.isActive = true;
     this.isBust = false;
+    this.hasCalled = false;
+    this.hasRaised = false;
+    (this.hasBigBlind = false), (this.hasSmallBlind = false);
 
     this.highPairValue = highPairValue;
     this.lowPairValue = lowPairValue;
@@ -120,11 +127,35 @@ class Player {
   setIsActive(isActive) {
     this.isActive = isActive;
   }
+  getHasCalled() {
+    return this.hasCalled;
+  }
+  setHasCalled(hasCalled) {
+    this.hasCalled = hasCalled;
+  }
+  getHasRaised() {
+    return this.hasCalled;
+  }
+  setHasRaised(hasRaised) {
+    this.hasRaised = hasRaised;
+  }
   getIsBust() {
     return this.isBust;
   }
   setIsBust(isBust) {
     this.isBust = isBust;
+  }
+  getHasBigBlind() {
+    return this.hasBigBlind;
+  }
+  setHasBigBlind(hasBigBlind) {
+    this.hasBigBlind = hasBigBlind;
+  }
+  getHasSmallBlind() {
+    return this.hasSmallBlind;
+  }
+  setHasSmallBlind(hasSmallBlind) {
+    this.hasSmallBlind = hasSmallBlind;
   }
 
   getHighPairValue() {

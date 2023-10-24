@@ -154,3 +154,17 @@
   color: rgb(70, 228, 109);
   font-size: 25px;
 }
+
+@keyframes blink {
+  0%,
+  100% {
+    border-color: #fff;
+  }
+  50% {
+    border-color: #212529;
+  }
+}
+
+.blinking-border {
+  animation: blink 1s infinite;
+}
