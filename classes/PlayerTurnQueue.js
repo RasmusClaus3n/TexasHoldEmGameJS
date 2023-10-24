@@ -64,6 +64,16 @@ class PlayerTurnQueue {
     return otherPlayers;
   }
 
+  allPlayersHaveCalled() {
+    for (let i = this.frontIndex; i < this.backIndex; i++) {
+      const player = this.items[i];
+      if (player && !player.hasCalled) {
+        return false; // Found a player who hasn't called
+      }
+    }
+    return true; // All players in the queue have called
+  }
+
   get printQueue() {
     return this.items;
   }

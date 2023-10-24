@@ -109,13 +109,11 @@ function startGame(mainPlayer, cpuPlayers) {
   // logWinner(winner);
 
   foldBtn.addEventListener('click', function () {
-    ptq.dequeue(gsm.getMainPlayer());
+    ptq.dequeue(ptq.getMainPlayer());
     gsm.setActive(gsm.getMainPlayer(), false);
-    startNextTurn(ptq, gsm, bm);
+    // TBI
   });
 }
-
-function determineTurn(ptq) {}
 
 function startMainPlayerTurn(mainPlayer, ptq, bm) {
   updatePlayerOptionsUI(bm); // UI changes if player can check/bet or call/raise/fold
@@ -145,6 +143,8 @@ function initiateMainPlayerRaise(mainPlayer, ptq, bm) {
   });
 
   confirmRaiseBtn.addEventListener('click', function () {
+    mainPlayer.setHasCalled(true);
+
     const slider = document.getElementById('slider');
     const raiseAmount = parseInt(slider.value);
 
@@ -168,17 +168,18 @@ function initiateMainPlayerRaise(mainPlayer, ptq, bm) {
     updateUI(mainPlayer, null, bm.getPot());
 
     ptq.dequeue(mainPlayer);
+    ptq.enqueue(mainPlayer);
 
     determineRound(mainPlayer, ptq, bm);
   });
 }
 
 function determineRound(mainPlayer, ptq, bm) {
-  const currentPlayer = ptq.getCurrentPlayer();
-
-  if (mainPlayer != null) {
-    ptq.enqueue(mainPlayer);
+  if (ptq.allPlayersHaveCalled()) {
+    console.log('STOP');
   }
+
+  const currentPlayer = ptq.getCurrentPlayer();
 
   if (!currentPlayer.getIsMainPlayer()) {
     startNextTurn(currentPlayer, ptq, bm);
@@ -196,12 +197,12 @@ function startNextTurn(currentPlayer, ptq, bm) {
 }
 
 function startNextCpuTurn(currentCpuPlayer, ptq, bm) {
-  if (checkIfCpuCanCall(currentCpuPlayer, bm, ptq)) {
+  if (cpuCanCall(currentCpuPlayer, bm, ptq)) {
     cpuCalls(currentCpuPlayer, bm, ptq);
   }
 }
 
-function checkIfCpuCanCall(currentCpuPlayer, bm) {
+function cpuCanCall(currentCpuPlayer, bm) {
   if (currentCpuPlayer.getMoney() >= bm.getCurrentBet()) {
     return true;
   } else {
@@ -210,17 +211,19 @@ function checkIfCpuCanCall(currentCpuPlayer, bm) {
 }
 
 function cpuCalls(currentCpuPlayer, bm, ptq) {
-  const cpuCallAmount = bm.getCurrentBet();
+  currentCpuPlayer.setHasCalled(true);
+
+  const cpuCallAmount = bm.getCurrentBet(); // Call will always be last made bet
 
   console.log(currentCpuPlayer.getName() + ' calls with ' + cpuCallAmount);
 
   currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
   bm.addToPot(cpuCallAmount);
-  currentCpuPlayer.hasCalled = true;
-  ptq.dequeue(currentCpuPlayer);
-  ptq.enqueue(currentCpuPlayer);
 
-  testFunction(ptq, bm);
+  ptq.dequeue(currentCpuPlayer);
+  ptq.enqueue(currentCpuPlayer); // To the end of queue
+
+  testFunction(ptq, bm); // This is stupid
 
   startNextTurn(ptq.getCurrentPlayer(), ptq, bm);
 }
