@@ -13,13 +13,22 @@ import {
 } from './deck-manager.js';
 import { setHandRanks } from './score-hand.js';
 import { rankHandRanks } from './determine-winner.js';
-import { displayToDOM, updateUI } from './dom-handler.js';
+import {
+  displayToDOM,
+  updateUI,
+  updateComCardsDOM,
+  updateMainPlayerHoleCardsDOM,
+} from './dom-handler.js';
 import { setBlinds } from './blinds.js';
 
 const callCheckBtn = document.getElementById('check-call');
 const betRaiseBtn = document.getElementById('bet-raise');
 const foldBtn = document.getElementById('fold');
 const confirmRaiseBtn = document.getElementById('confirm-raise-btn');
+
+const gsm = new GameStateManager(); // Stores players and manages player states
+const bm = new BettingManager(); // Manages money to pot and remebers last made bet
+const ptq = new PlayerTurnQueue(); // Determines player turn in round and blinds
 
 const randomNames = [
   'Steve',
@@ -77,29 +86,15 @@ const allPlayers = [mainPlayer, ...cpuPlayers];
 startGame(mainPlayer, cpuPlayers);
 
 function startGame(mainPlayer, cpuPlayers) {
-  const bm = new BettingManager(); // Manages money to pot and remebers last made bet
-  const ptq = new PlayerTurnQueue(); // Determines player turn in round and blinds
-  const gsm = new GameStateManager(); // Stores players and manages player states
-
   mainPlayer.setIsMainPlayer(true);
-
-  console.log(mainPlayer);
-
-  // addPlayersToGSM(gsm, mainPlayer, cpuPlayers);
-
-  setAllPlayersToActive(mainPlayer, cpuPlayers); // Meaning they all get to play
-
+  setAllPlayersToActive(mainPlayer, cpuPlayers);
   addActivePlayersToPTQ(mainPlayer, cpuPlayers, ptq);
 
   gsm.deck = createDeck([]);
-  const deck = createDeck([]);
-  const comCards = [];
-  shuffleDeck(deck);
+  shuffleDeck(gsm.deck);
 
   setMainPlayerHoleCards(ptq.getMainPlayerFromQ(), gsm.deck);
   setCpuHoleCards(ptq.getCpuPlayersFromQ(), gsm.deck);
-
-  // startNewStage(comCards, deck);
 
   setHandRanks(
     ptq.getMainPlayerFromQ(),
@@ -113,10 +108,9 @@ function startGame(mainPlayer, cpuPlayers) {
   );
 
   setBlinds([ptq.getMainPlayerFromQ(), ...ptq.getCpuPlayersFromQ()], bm);
+  updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
 
   startMainPlayerTurn(ptq.getMainPlayerFromQ(), ptq, bm); // Main player always starts first round
-
-  updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
 
   // winner = rankHandRanks(gsm.getMainPlayer(), gsm.getCpuPlayers());
   // logWinner(winner);
@@ -168,7 +162,7 @@ function initMainPlayerRaise(mainPlayer, ptq, bm) {
     mainPlayer.setMoney(mainPlayerMoney - raiseAmount);
     console.log('My money:' + mainPlayer.getMoney());
 
-    console.log('You raised with: ' + raiseAmount);
+    addMessage('You raised with: $' + raiseAmount); // Start the process
 
     // Reset the slider value and text
     slider.value = slider.min;
@@ -185,14 +179,20 @@ function initMainPlayerRaise(mainPlayer, ptq, bm) {
 }
 
 function determineRound(ptq, bm) {
-  if (isNoMoreCalls) {
-    startNextStage(ptq, bm);
-  } else {
-    startNextTurn(currentPlayer, ptq, bm);
-  }
-  if (hasRoundEnded(ptq, bm)) {
-    console.log('Round has probably ended');
-  }
+  setTimeout(() => {
+    const currentPlayer = ptq.getCurrentPlayer();
+
+    if (isNoMoreCalls(ptq)) {
+      console.log('No more calls');
+      startNextStage(gsm.comCards, gsm.deck);
+    } else {
+      startNextTurn(currentPlayer, ptq, bm);
+    }
+
+    if (hasRoundEnded(ptq, bm)) {
+      console.log('Round has probably ended');
+    }
+  }, 100); // Delay of 1000 milliseconds (1 second)
 }
 
 function isNoMoreCalls(ptq) {
@@ -212,9 +212,8 @@ function isNoMoreCalls(ptq) {
         playersThatRaised[0].getName() +
           ' is the only one who has raised and everbody else called'
       );
+      return true;
     }
-
-    return true;
   }
   return false;
 }
@@ -240,14 +239,137 @@ function startNextTurn(currentPlayer, ptq, bm) {
 }
 
 function startNextCpuTurn(currentCpuPlayer, ptq, bm) {
-  if (cpuCanCall(currentCpuPlayer, bm) && cpuHasStrongHand(currentCpuPlayer)) {
-    cpuCalls(currentCpuPlayer, bm, ptq);
-  } else {
-    cpuFolds(currentCpuPlayer, ptq, bm);
+  const cpuBehaviour = setCpuBehaviour();
+
+  switch (cpuBehaviour) {
+    case 'safe':
+      runSafeCpuBehaviour(currentCpuPlayer);
+      break;
+
+    case 'normal':
+      runNormalCpuBehaviour(currentCpuPlayer);
+      break;
+
+    case 'aggressive':
+      runAggressiveCpuBehaviour(currentCpuPlayer);
+      break;
+
+    case 'bluffing':
+      runBluffingCpuBehaviour(currentCpuPlayer);
+      break;
+
+    default:
+      alert('This should not happen');
+      break;
   }
 }
 
-function cpuCanCall(currentCpuPlayer, bm) {
+function runSafeCpuBehaviour(currentCpuPlayer) {
+  switch (gsm.stage) {
+    case 0: // Pre-flop
+      if (
+        cpuCanCall(currentCpuPlayer) &&
+        bm.getCurrentBet() < currentCpuPlayer.getMoney() * 0.5 &&
+        cpuHasStrongHand(currentCpuPlayer)
+      ) {
+        cpuCalls(currentCpuPlayer);
+      } else {
+        cpuFolds(currentCpuPlayer);
+      }
+      break;
+    case 1: // Flop
+      break;
+    case 2: // Turn
+      break;
+    case 3: // River
+      break;
+    default:
+      alert('This should not happen');
+      break;
+  }
+}
+function runNormalCpuBehaviour(currentCpuPlayer) {
+  switch (gsm.stage) {
+    case 0: // Pre-flop
+      if (
+        cpuCanCall(currentCpuPlayer) &&
+        bm.getCurrentBet() < currentCpuPlayer.getMoney() * 0.5 &&
+        cpuHasStrongHand(currentCpuPlayer)
+      ) {
+        cpuCalls(currentCpuPlayer);
+      } else {
+        cpuFolds(currentCpuPlayer);
+      }
+      break;
+    case 1: // Flop
+      break;
+    case 2: // Turn
+      break;
+    case 3: // River
+      break;
+    default:
+      alert('This should not happen');
+      break;
+  }
+}
+function runAggressiveCpuBehaviour(currentCpuPlayer) {
+  switch (gsm.stage) {
+    case 0: // Pre-flop
+      if (
+        cpuCanCall(currentCpuPlayer) &&
+        bm.getCurrentBet() < currentCpuPlayer.getMoney() * 0.5 &&
+        cpuHasStrongHand(currentCpuPlayer)
+      ) {
+        cpuCalls(currentCpuPlayer);
+      } else {
+        cpuFolds(currentCpuPlayer);
+      }
+      break;
+    case 1: // Flop
+      break;
+    case 2: // Turn
+      break;
+    case 3: // River
+      break;
+    default:
+      alert('This should not happen');
+      break;
+  }
+}
+function runBluffingCpuBehaviour(currentCpuPlayer) {
+  switch (gsm.stage) {
+    case 0: // Pre-flop
+      if (
+        cpuCanCall(currentCpuPlayer) &&
+        bm.getCurrentBet() < currentCpuPlayer.getMoney() * 0.5 &&
+        cpuHasStrongHand(currentCpuPlayer)
+      ) {
+        cpuCalls(currentCpuPlayer);
+      } else {
+        cpuFolds(currentCpuPlayer);
+      }
+      break;
+    case 1: // Flop
+      break;
+    case 2: // Turn
+      break;
+    case 3: // River
+      break;
+    default:
+      alert('This should not happen');
+      break;
+  }
+}
+
+function setCpuBehaviour() {
+  const cpuBehaviours = ['normal', 'safe', 'aggressive', 'bluffing'];
+  const randomIndex = Math.floor(Math.random() * cpuBehaviours.length);
+  const cpuBehaviour = cpuBehaviours[randomIndex];
+
+  return cpuBehaviour;
+}
+
+function cpuCanCall(currentCpuPlayer) {
   if (currentCpuPlayer.getMoney() >= bm.getCurrentBet()) {
     return true;
   } else {
@@ -262,7 +384,7 @@ function cpuCalls(currentCpuPlayer, bm, ptq) {
 
   console.log('Call amount: ' + cpuCallAmount);
 
-  console.log(currentCpuPlayer.getName() + ' calls with ' + cpuCallAmount);
+  addMessage(`${currentCpuPlayer.getName()} calls`);
 
   currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
   bm.addToPot(cpuCallAmount);
@@ -282,7 +404,8 @@ function cpuFolds(currentCpuPlayer, ptq, bm) {
 
   currentCpuPlayerStatusText.textContent = 'Fold';
 
-  console.log(currentCpuPlayer.getName() + ' folds');
+  addMessage(`${currentCpuPlayer.getName()} folds`);
+
   ptq.dequeue(currentCpuPlayer);
   currentCpuPlayer.setIsActive(false);
   determineRound(ptq, bm);
@@ -291,19 +414,35 @@ function cpuFolds(currentCpuPlayer, ptq, bm) {
 function cpuHasStrongHand(currentCpuPlayer) {
   const cpuPlayerFirstCard = currentCpuPlayer.getHand()[0].getValue();
   const cpuPlayerSecondCard = currentCpuPlayer.getHand()[1].getValue();
-  if (cpuPlayerFirstCard >= 10 && cpuPlayerSecondCard >= 10) {
-    return true;
-  } else {
-    return false;
+
+  switch (gsm.stage) {
+    case 0: // Pre-flop
+      if (
+        (cpuPlayerFirstCard >= 10 && cpuPlayerSecondCard >= 10) ||
+        currentCpuPlayer.getHandRank() === 2
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+      break;
+    case 1: // Flop
+      break;
+    case 2: // Turn
+      break;
+    case 3: // River
+      break;
+    default:
+      alert('This should not happen');
+      break;
   }
 }
 
 function cpuRaises(currentCpuPlayer, bm) {
-  console.log(currentCpuPlayer.getName() + ' raises');
   if (currentCpuPlayer.getMoney() >= bm.getCurrentBet() * 5) {
-    const cpuCallAmount = bm.getCurrentBet() * 5;
+    const cpuRaiseAmount = bm.getCurrentBet() * 5;
     currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
-    bm.addToPot(cpuCallAmount);
+    bm.addToPot(cpuRaiseAmount);
   } else {
     cpuFolds(currentCpuPlayer);
   }
@@ -399,25 +538,20 @@ function testFunction(ptq, bm) {
 }
 
 function startNextStage(comCards, deck) {
-  let isFlop = false;
-  let isTurn = false;
-  let isRiver = false;
+  gsm.increaseStage();
 
-  if (comCards.length === 0) {
-    isFlop = true;
+  if (gsm.stage === 1) {
     createFlop(deck, comCards);
-  } else if (comCards.length === 3) {
-    isFlop = false;
+  } else if (gsm.stage === 2 || gsm.stage === 3) {
     createTurnOrRiver(deck, comCards);
+  } else {
+    alert('Something went terribly wrong :(');
   }
-}
 
-function setCpuBehaviour() {
-  const cpuBehaviours = ['normal', 'safe', 'aggressive'];
-  const randomIndex = Math.floor(Math.random() * cpuBehaviours.length);
-  const cpuBehaviour = cpuBehaviours[randomIndex];
-
-  return cpuBehaviour;
+  setHandRanks(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), comCards);
+  updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), null);
+  updateComCardsDOM(comCards);
+  console.log(gsm.comCards);
 }
 
 function logWinner(winner) {
@@ -432,6 +566,30 @@ function logWinner(winner) {
     console.log(winner.getName() + ' wins');
     // winner.setMoney(winner.getMoney() + pot);
   }
+}
+
+function addMessage(text) {
+  const messageContainer = document.getElementById('message-container');
+  const messageDiv = document.createElement('div');
+  messageDiv.classList.add('message');
+  messageContainer.appendChild(messageDiv);
+
+  let index = 0;
+
+  function addLetter() {
+    if (index < text.length) {
+      if (text[index] === ' ') {
+        messageDiv.innerText += '\u00A0'; // Use Unicode non-breaking space
+      } else {
+        messageDiv.innerText += text[index];
+      }
+      index++;
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+      setTimeout(addLetter, 20); // Delay for 100 milliseconds between each letter
+    }
+  }
+
+  addLetter();
 }
 
 export { mainPlayer, cpuPlayers, allPlayers };

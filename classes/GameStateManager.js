@@ -2,6 +2,7 @@ class GameStateManager {
   constructor() {
     this._deck = [];
     this._comCards = [];
+    this._stage = 0;
   }
 
   get deck() {
@@ -18,6 +19,18 @@ class GameStateManager {
 
   set comCards(newComCards) {
     this._comCards = newComCards;
+  }
+
+  get stage() {
+    return this._stage;
+  }
+
+  set stage(newStage) {
+    this._stage = newStage;
+  }
+
+  increaseStage() {
+    this._stage += 1;
   }
 }
 

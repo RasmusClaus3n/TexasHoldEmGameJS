@@ -8,24 +8,10 @@ const potText = document.querySelector('.pot-text');
 const pkrBtn = document.querySelector('.pkr-btn button');
 
 function displayToDOM(mainPlayer, cpuPlayers, comCards) {
-  comCardsDiv.innerHTML = '';
-  playerCardsDiv.innerHTML = '';
   cpuPlayersRowDiv.innerHTML = '';
 
-  for (let card of comCards) {
-    const pokerCardImg = createPokerCardImg(card);
-    comCardsDiv.appendChild(pokerCardImg);
-  }
-
-  for (let i = 1; i < 6 - comCards.length; i++) {
-    let backCardImg = createBackCardImg();
-    comCardsDiv.appendChild(backCardImg);
-  }
-
-  for (let card of mainPlayer.getHand()) {
-    let pokerCardImg = createPokerCardImg(card);
-    playerCardsDiv.appendChild(pokerCardImg);
-  }
+  updateMainPlayerHoleCardsDOM(mainPlayer);
+  updateComCardsDOM(comCards);
 
   for (const cpu of cpuPlayers) {
     createCpuDivs(cpu, cpuPlayersRowDiv);
@@ -97,6 +83,28 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
   }
 }
 
+function updateComCardsDOM(comCards) {
+  comCardsDiv.innerHTML = '';
+
+  for (let card of comCards) {
+    const pokerCardImg = createPokerCardImg(card);
+    comCardsDiv.appendChild(pokerCardImg);
+  }
+
+  for (let i = 1; i < 6 - comCards.length; i++) {
+    let backCardImg = createBackCardImg();
+    comCardsDiv.appendChild(backCardImg);
+  }
+}
+
+function updateMainPlayerHoleCardsDOM(mainPlayer) {
+  playerCardsDiv.innerHTML = '';
+  for (let card of mainPlayer.getHand()) {
+    let pokerCardImg = createPokerCardImg(card);
+    playerCardsDiv.appendChild(pokerCardImg);
+  }
+}
+
 function updateUI(mainPlayer, cpuPlayers, pot) {
   if (mainPlayer != null) {
     // Update main player's hand rank
@@ -125,6 +133,9 @@ function updateUI(mainPlayer, cpuPlayers, pot) {
   }
 }
 
-function createHandRankNames() {}
-
-export { displayToDOM, updateUI };
+export {
+  displayToDOM,
+  updateUI,
+  updateComCardsDOM,
+  updateMainPlayerHoleCardsDOM,
+};

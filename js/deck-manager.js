@@ -97,7 +97,7 @@ function createHand(deck, playerCards) {
 
 function createFlop(deck, comCards) {
   // Picks three random cards from deck
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     let randomIndex = Math.floor(Math.random() * 52);
 
     // If card is null picks another card

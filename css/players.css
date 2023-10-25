@@ -172,3 +172,24 @@
 .hidden {
   display: none;
 }
+.terminal {
+  margin: 0;
+  width: 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #333;
+  overflow: scroll;
+  border: 1px solid #ccc;
+  background-color: black;
+  color: white;
+  text-align: start;
+}
+
+.message-container {
+  padding: 10px;
+}
+
+.message {
+  margin: 5px 0;
+}

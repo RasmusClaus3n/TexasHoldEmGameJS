@@ -73,9 +73,13 @@ function setHighCard(resultCards) {
 }
 
 function setHandRanks(mainPlayer, cpuPlayers, comCards) {
-  mainPlayer.setHandRank(scoreCards(comCards, mainPlayer));
-  for (let cpu of cpuPlayers) {
-    cpu.setHandRank(scoreCards(comCards, cpu));
+  if (mainPlayer) {
+    mainPlayer.setHandRank(scoreCards(comCards, mainPlayer));
+  }
+  if (cpuPlayers) {
+    for (let cpu of cpuPlayers) {
+      cpu.setHandRank(scoreCards(comCards, cpu));
+    }
   }
 }
 
