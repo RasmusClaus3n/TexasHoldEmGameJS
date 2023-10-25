@@ -9,7 +9,6 @@ class PlayerTurnQueue {
     if (player.isActive) {
       this.items[this.backIndex] = player;
       this.backIndex++;
-      console.log(`Player ${player.getName()} was queued.`);
       return player + ' inserted';
     } else {
       console.log(
@@ -21,7 +20,6 @@ class PlayerTurnQueue {
 
   dequeue() {
     const item = this.items[this.frontIndex];
-    console.log(`Player ${item.getName()} was dequeued.`);
     delete this.items[this.frontIndex];
     this.frontIndex++;
     return item;
@@ -54,24 +52,45 @@ class PlayerTurnQueue {
   }
 
   getCpuPlayersFromQ() {
-    const otherPlayers = [];
+    const cpuPlayers = [];
     for (let i = this.frontIndex; i < this.backIndex; i++) {
       const player = this.items[i];
       if (!player.isMainPlayer) {
-        otherPlayers.push(player);
+        cpuPlayers.push(player);
       }
     }
-    return otherPlayers;
+    return cpuPlayers;
+  }
+
+  getPlayersWhoHaveCalled() {
+    const players = Object.values(this.items);
+    return players.filter((player) => player && player.hasCalled);
+  }
+  getPlayersWhoRaised() {
+    const players = Object.values(this.items);
+    return players.filter((player) => player && player.hasRaised);
   }
 
   allPlayersHaveCalled() {
-    for (let i = this.frontIndex; i < this.backIndex; i++) {
-      const player = this.items[i];
-      if (player && !player.hasCalled) {
-        return false; // Found a player who hasn't called
-      }
-    }
-    return true; // All players in the queue have called
+    const players = Object.values(this.items);
+    return players.every((player) => player && player.hasCalled);
+  }
+
+  anyPlayerHasRaised() {
+    const players = Object.values(this.items);
+    const playersWithRaise = players.filter(
+      (player) => player && player.hasRaised
+    );
+    return playersWithRaise.length > 0; // Returns true if any player has raised, otherwise false
+  }
+
+  allOtherPlayersHaveCalled(currentPlayer) {
+    const players = Object.values(this.items);
+    return players
+      .filter(
+        (player) => player && player.getName() !== currentPlayer.getName()
+      )
+      .every((player) => player.hasCalled);
   }
 
   get printQueue() {

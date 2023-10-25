@@ -13,6 +13,7 @@ class BettingManager {
 
   setCurrentBet(amount) {
     this.currentBet = amount;
+    console.log('BM says current bet is: ' + amount);
   }
 
   getCurrentBet() {
