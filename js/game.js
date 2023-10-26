@@ -114,12 +114,6 @@ function startGame(mainPlayer, cpuPlayers) {
 
   // winner = rankHandRanks(gsm.getMainPlayer(), gsm.getCpuPlayers());
   // logWinner(winner);
-
-  foldBtn.addEventListener('click', function () {
-    ptq.getMainPlayerFromQ().setIsActive(false);
-    ptq.dequeue(ptq.getMainPlayerFromQ());
-    // TBI
-  });
 }
 
 function startMainPlayerTurn(mainPlayer) {
@@ -149,32 +143,6 @@ function initMainPlayerRaise(mainPlayer) {
     } else {
       raiseMoneyText.textContent = `$${this.value}`;
     }
-  });
-
-  confirmRaiseBtn.addEventListener('click', function () {
-    mainPlayer.setHasRaised(true);
-
-    const raiseAmount = parseInt(slider.value);
-
-    bm.addToPot(raiseAmount);
-    bm.setCurrentBet(raiseAmount);
-
-    mainPlayer.setMoney(mainPlayerMoney - raiseAmount);
-    console.log('My money:' + mainPlayer.getMoney());
-
-    addMessage('You raised with: $' + raiseAmount); // Start the process
-
-    // Reset the slider value and text
-    slider.value = slider.min;
-    const raiseMoneyText = document.querySelector('.raise-money');
-    raiseMoneyText.textContent = `$${slider.min}`;
-
-    updateUI(mainPlayer, null, bm.getPot());
-
-    ptq.dequeue(mainPlayer);
-    ptq.enqueue(mainPlayer);
-
-    determineRound(ptq, bm);
   });
 }
 
@@ -217,7 +185,6 @@ function isNoMoreCalls() {
   }
   return false;
 }
-
 function hasRoundEnded() {
   const currentPlayer = ptq.getCurrentPlayer();
   const nextPlayer = ptq.getNextPlayer();
@@ -263,7 +230,13 @@ function startNextCpuTurn(currentCpuPlayer) {
       break;
   }
 }
+function setCpuBehaviour() {
+  const cpuBehaviours = ['normal', 'safe', 'aggressive', 'bluffing'];
+  const randomIndex = Math.floor(Math.random() * cpuBehaviours.length);
+  const cpuBehaviour = cpuBehaviours[randomIndex];
 
+  return cpuBehaviour;
+}
 function runSafeCpuBehaviour(currentCpuPlayer) {
   switch (gsm.stage) {
     case 0: // Pre-flop
@@ -361,15 +334,6 @@ function runBluffingCpuBehaviour(currentCpuPlayer) {
       break;
   }
 }
-
-function setCpuBehaviour() {
-  const cpuBehaviours = ['normal', 'safe', 'aggressive', 'bluffing'];
-  const randomIndex = Math.floor(Math.random() * cpuBehaviours.length);
-  const cpuBehaviour = cpuBehaviours[randomIndex];
-
-  return cpuBehaviour;
-}
-
 function cpuCanCall(currentCpuPlayer) {
   if (currentCpuPlayer.getMoney() >= bm.getCurrentBet()) {
     return true;
@@ -377,7 +341,6 @@ function cpuCanCall(currentCpuPlayer) {
     return false;
   }
 }
-
 function cpuCalls(currentCpuPlayer) {
   currentCpuPlayer.setHasCalled(true);
 
@@ -395,7 +358,15 @@ function cpuCalls(currentCpuPlayer) {
 
   determineRound();
 }
-
+function cpuRaises(currentCpuPlayer) {
+  if (currentCpuPlayer.getMoney() >= bm.getCurrentBet() * 5) {
+    const cpuRaiseAmount = bm.getCurrentBet() * 5;
+    currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
+    bm.addToPot(cpuRaiseAmount);
+  } else {
+    cpuFolds(currentCpuPlayer);
+  }
+}
 function cpuFolds(currentCpuPlayer) {
   const currentCpuPlayerStatusText = document.getElementById(
     `${currentCpuPlayer.getName()}-rank`
@@ -409,7 +380,6 @@ function cpuFolds(currentCpuPlayer) {
   currentCpuPlayer.setIsActive(false);
   determineRound();
 }
-
 function cpuHasStrongHand(currentCpuPlayer) {
   const cpuPlayerFirstCard = currentCpuPlayer.getHand()[0].getValue();
   const cpuPlayerSecondCard = currentCpuPlayer.getHand()[1].getValue();
@@ -456,17 +426,6 @@ function cpuHasStrongHand(currentCpuPlayer) {
       break;
   }
 }
-
-function cpuRaises(currentCpuPlayer) {
-  if (currentCpuPlayer.getMoney() >= bm.getCurrentBet() * 5) {
-    const cpuRaiseAmount = bm.getCurrentBet() * 5;
-    currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
-    bm.addToPot(cpuRaiseAmount);
-  } else {
-    cpuFolds(currentCpuPlayer);
-  }
-}
-
 function createCPUplayers() {
   let cpuPlayers = [];
 
@@ -610,5 +569,44 @@ function addMessage(text) {
 
   addLetter();
 }
+
+// Event listeners
+
+confirmRaiseBtn.addEventListener('click', function () {
+  const mainPlayer = ptq.getMainPlayerFromQ();
+  const mainPlayerMoney = mainPlayer.getMoney();
+
+  mainPlayer.setHasRaised(true);
+
+  const raiseAmount = parseInt(slider.value);
+
+  bm.addToPot(raiseAmount);
+  bm.setCurrentBet(raiseAmount);
+
+  mainPlayer.setMoney(mainPlayerMoney - raiseAmount);
+  console.log('My money:' + mainPlayer.getMoney());
+
+  addMessage('You raised with: $' + raiseAmount); // Start the process
+
+  addMessage('Money in pot: ' + bm.getPot());
+
+  // Reset the slider value and text
+  slider.value = slider.min;
+  const raiseMoneyText = document.querySelector('.raise-money');
+  raiseMoneyText.textContent = `$${slider.min}`;
+
+  updateUI(mainPlayer, null, bm.getPot());
+
+  ptq.dequeue(mainPlayer);
+  ptq.enqueue(mainPlayer);
+
+  determineRound(ptq, bm);
+});
+
+foldBtn.addEventListener('click', function () {
+  ptq.getMainPlayerFromQ().setIsActive(false);
+  ptq.dequeue(ptq.getMainPlayerFromQ());
+  // TBI
+});
 
 export { mainPlayer, cpuPlayers, allPlayers };

@@ -7,9 +7,9 @@
 }
 
 .poker-card {
-  max-width: 60px; /* Ensures cards don't exceed container width */
-  box-sizing: border-box; /* Include padding and border in the element's total width */
-  overflow: hidden; /* Hide any content that exceeds the maximum width */
+  max-width: 60px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .main-player-container .poker-card {
