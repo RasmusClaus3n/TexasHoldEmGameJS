@@ -62,6 +62,11 @@ class PlayerTurnQueue {
     return cpuPlayers;
   }
 
+  getAllPlayersFromQ() {
+    const players = Object.values(this.items);
+    return players.filter((player) => player);
+  }
+
   getPlayersWhoHaveCalled() {
     const players = Object.values(this.items);
     return players.filter((player) => player && player.hasCalled);

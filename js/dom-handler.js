@@ -60,14 +60,15 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
   const cpuCardsDiv = document.createElement('div');
   cpuCardsDiv.className = 'player-cards';
 
-  const playerHandRank = document.createElement('div');
-  playerHandRank.className = 'player-hand-rank';
-  playerHandRank.id = `${cpuId}-rank`;
+  const playerStatusContainer = document.createElement('div');
+  playerStatusContainer.className = 'status-container';
+  playerStatusContainer.id = `${cpuId}-status-container`;
 
-  const playerHandRankText = document.createElement('p');
-  playerHandRankText.textContent = cpu.getHandRankName();
+  const playerStatusText = document.createElement('p');
+  playerStatusText.id = `${cpuId}-status-text`;
+  playerStatusText.textContent = cpu.getHandRankName();
 
-  playerHandRank.appendChild(playerHandRankText);
+  playerStatusContainer.appendChild(playerStatusText);
 
   cpuContainer.appendChild(nameText);
   nameText.appendChild(moneyText);
@@ -75,7 +76,7 @@ function createCpuDivs(cpu, cpuPlayersRowDiv) {
   cpuPlayersRowDiv.appendChild(cpuContainer);
 
   playerContent.appendChild(cpuCardsDiv);
-  playerContent.appendChild(playerHandRank);
+  playerContent.appendChild(playerStatusContainer);
 
   for (let card of cpu.getHand()) {
     let pokerCardImg = createPokerCardImg(card);
