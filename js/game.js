@@ -28,9 +28,9 @@ const confirmRaiseBtn = document.getElementById('confirm-raise-btn');
 
 const messages = [];
 
-const gsm = new GameStateManager(); // Stores players and manages player states
-const bm = new BettingManager(); // Manages money to pot and remebers last made bet
-const ptq = new PlayerTurnQueue(); // Determines player turn in round and blinds
+const gsm = new GameStateManager(); // Stores players, deck and community cards
+const bm = new BettingManager(); // Manages money transactions and current bet
+const ptq = new PlayerTurnQueue(); // Determines player turn during hands
 
 const randomNames = [
   'Steve',
@@ -76,7 +76,6 @@ const randomNames = [
 
 let cpuPlayers;
 let mainPlayer;
-let winner;
 
 if (!cpuPlayers || !mainPlayer) {
   cpuPlayers = createCPUplayers();
@@ -155,11 +154,6 @@ function determineRound() {
 
     if (!ptq.getNextPlayer() && currentPlayer === ptq.getMainPlayerFromQ()) {
       addMessage(currentPlayer.getName() + ' win!', 'pink');
-    } else if (
-      !ptq.getNextPlayer() &&
-      !currentPlayer === ptq.getMainPlayerFromQ()
-    ) {
-      addMessage(currentPlayer.getName() + ' wins', 'pink');
     }
 
     if (isNoMoreCalls(ptq)) {
@@ -215,6 +209,62 @@ function startNextTurn(currentPlayer) {
   } else {
     startNextCpuTurn(currentPlayer);
   }
+}
+
+function startNextStage(comCards, deck) {
+  gsm.increaseStage();
+
+  if (gsm.stage === 1) {
+    createFlop(deck, comCards);
+    addMessage('Showing flop');
+  } else if (gsm.stage === 2) {
+    createTurnOrRiver(deck, comCards);
+    addMessage('Showing turn');
+  } else if (gsm.stage === 3) {
+    createTurnOrRiver(deck, comCards);
+    addMessage('Showing river');
+  } else if (gsm.stage === 4) {
+    startShowDown();
+  }
+
+  setHandRanks(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), comCards);
+  updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), null);
+  updateComCardsDOM(comCards);
+
+  clearStatuses(ptq.getAllPlayersFromQ());
+
+  bm.setCurrentBet(0);
+
+  determineRound();
+}
+
+function startShowDown() {
+  const winner = rankHandRanks(
+    ptq.getMainPlayerFromQ(), // These can be null. Fix.
+    ptq.getCpuPlayersFromQ()
+  );
+
+  if (Array.isArray(winner)) {
+    addMessage("It's a tie between:");
+    winner.forEach((player) => {
+      addMessage(player.getName());
+      splitPot(winner);
+    });
+  } else if (winner === ptq.getMainPlayerFromQ()) {
+    addMessage(winner.getName() + ' win!!!');
+  } else {
+    addMessage(winner.getName() + ' wins');
+  }
+}
+
+function splitPot(winner) {
+  const pot = bm.getPot();
+  const totalWinners = winner.length;
+  const amountPerWinner = Math.floor(pot / totalWinners);
+
+  winner.forEach((player) => {
+    player.setMoney(player.getMoney() + amountPerWinner);
+  });
 }
 
 function startNextCpuTurn(currentCpuPlayer) {
@@ -486,6 +536,7 @@ function setAllPlayersToActive(mainPlayer, cpuPlayers) {
   cpuPlayers.forEach((cpuPlayer) => cpuPlayer.setIsActive(true));
 }
 
+// Change this
 function addActivePlayersToPTQ(mainPlayer, cpuPlayers) {
   const activePlayers = [mainPlayer, ...cpuPlayers];
 
@@ -522,41 +573,6 @@ function stopHightLightPlayer(player) {
 
 function testFunction() {
   updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
-}
-
-function startNextStage(comCards, deck) {
-  gsm.increaseStage();
-
-  if (gsm.stage === 1) {
-    createFlop(deck, comCards);
-    addMessage('Showing flop');
-  } else if (gsm.stage === 2) {
-    createTurnOrRiver(deck, comCards);
-    addMessage('Showing turn');
-  } else if (gsm.stage === 3) {
-    createTurnOrRiver(deck, comCards);
-    addMessage('Showing river');
-  } else if (gsm.stage === 4) {
-    startShowDown();
-  }
-
-  setHandRanks(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), comCards);
-  updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), null);
-  updateComCardsDOM(comCards);
-
-  clearStatuses(ptq.getAllPlayersFromQ());
-
-  bm.setCurrentBet(0);
-
-  determineRound();
-}
-
-function startShowDown() {
-  const winner = rankHandRanks(
-    ptq.getMainPlayerFromQ(),
-    ptq.getCpuPlayersFromQ()
-  );
-  addMessage(winner.getName() + ' WIIIIINS');
 }
 
 function clearStatuses(allActivePlayers) {
@@ -689,5 +705,3 @@ function createMainPlayer() {
 
   return mainPlayer;
 }
-
-export { mainPlayer, cpuPlayers, allPlayers };
