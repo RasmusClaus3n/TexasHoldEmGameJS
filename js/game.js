@@ -26,6 +26,8 @@ const betRaiseBtn = document.getElementById('bet-raise');
 const foldBtn = document.getElementById('fold');
 const confirmRaiseBtn = document.getElementById('confirm-raise-btn');
 
+const comCardsDiv = document.querySelector('.community-cards');
+
 const messages = [];
 
 const gsm = new GameStateManager(); // Stores players, deck and community cards
@@ -82,14 +84,16 @@ if (!cpuPlayers || !mainPlayer) {
   mainPlayer = createMainPlayer();
 }
 
-const allPlayers = [mainPlayer, ...cpuPlayers];
-
 startGame(mainPlayer, cpuPlayers);
 
 function startGame(mainPlayer, cpuPlayers) {
   mainPlayer.setIsMainPlayer(true);
   setAllPlayersToActive(mainPlayer, cpuPlayers);
   addActivePlayersToPTQ(mainPlayer, cpuPlayers, ptq);
+
+  gsm.mainPlayer = mainPlayer;
+  gsm.cpuPlayers = cpuPlayers;
+  gsm.setAllPlayers(mainPlayer, ...cpuPlayers);
 
   gsm.deck = createDeck([]);
   shuffleDeck(gsm.deck);
@@ -111,10 +115,39 @@ function startGame(mainPlayer, cpuPlayers) {
   setBlinds([ptq.getMainPlayerFromQ(), ...ptq.getCpuPlayersFromQ()], bm);
   updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
 
-  startMainPlayerTurn(ptq.getMainPlayerFromQ()); // Main player always starts first round
+  startNewHand();
+  // startMainPlayerTurn(ptq.getMainPlayerFromQ());
 
   // winner = rankHandRanks(gsm.getMainPlayer(), gsm.getCpuPlayers());
   // logWinner(winner);
+}
+
+function startNewHand() {
+  setTimeout(() => {
+    if (gsm.mainPlayer.isBust) {
+      console.log('You lose');
+    }
+
+    addMessage('');
+    addMessage('New Hand!');
+
+    gsm.stage = 0;
+    gsm.comCards = [];
+
+    gsm.deck = createDeck([]);
+    shuffleDeck(gsm.deck);
+
+    setMainPlayerHoleCards(gsm.mainPlayer, gsm.deck);
+    setCpuHoleCards(gsm.cpuPlayers, gsm.deck);
+
+    setHandRanks(gsm.mainPlayer, gsm.cpuPlayers, gsm.comCards);
+    displayToDOM(gsm.mainPlayer, gsm.cpuPlayers, gsm.comCards);
+
+    setBlinds([ptq.getMainPlayerFromQ(), ...ptq.getCpuPlayersFromQ()], bm);
+    updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
+
+    determineEndOfHand();
+  }, 1000);
 }
 
 function startMainPlayerTurn(mainPlayer) {
@@ -147,8 +180,8 @@ function initMainPlayerRaise(mainPlayer) {
   });
 }
 
-function determineRound() {
-  console.log('Determening round');
+function determineEndOfHand() {
+  console.log('Determening end of hand');
   setTimeout(() => {
     const currentPlayer = ptq.getCurrentPlayer();
 
@@ -156,15 +189,11 @@ function determineRound() {
       addMessage(currentPlayer.getName() + ' win!', 'pink');
     }
 
-    if (isNoMoreCalls(ptq)) {
+    if (isNoMoreCalls()) {
       console.log('No more calls');
       startNextStage(gsm.comCards, gsm.deck);
     } else {
       startNextTurn(currentPlayer);
-    }
-
-    if (hasRoundEnded()) {
-      console.log('Round has probably ended');
     }
   }, 1000);
 }
@@ -179,8 +208,7 @@ function isNoMoreCalls() {
     const playersThatRaised = ptq.getPlayersWhoRaised();
     if (
       playersThatRaised.length === 1 &&
-      playersThatRaised[0] === currentPlayer &&
-      !playersThatCalled.includes(currentPlayer)
+      playersThatRaised[0] === currentPlayer
     ) {
       console.log(
         playersThatRaised[0].getName() +
@@ -190,17 +218,6 @@ function isNoMoreCalls() {
     }
   }
   return false;
-}
-function hasRoundEnded() {
-  const currentPlayer = ptq.getCurrentPlayer();
-  const nextPlayer = ptq.getNextPlayer();
-
-  // Check if only one player remains active
-  if (!nextPlayer && currentPlayer.isActive) {
-    return true;
-  }
-
-  return false; // Round hasn't ended yet
 }
 
 function startNextTurn(currentPlayer) {
@@ -235,10 +252,13 @@ function startNextStage(comCards, deck) {
 
   bm.setCurrentBet(0);
 
-  determineRound();
+  determineEndOfHand();
 }
 
+// Fix
 function startShowDown() {
+  // showCpuCardsDOM()
+
   const winner = rankHandRanks(
     ptq.getMainPlayerFromQ(), // These can be null. Fix.
     ptq.getCpuPlayersFromQ()
@@ -255,6 +275,8 @@ function startShowDown() {
   } else {
     addMessage(winner.getName() + ' wins');
   }
+
+  startNewHand();
 }
 
 function splitPot(winner) {
@@ -265,6 +287,9 @@ function splitPot(winner) {
   winner.forEach((player) => {
     player.setMoney(player.getMoney() + amountPerWinner);
   });
+}
+function takeMoneyFromPot(winner) {
+  winner.setMoney(getMoney() + bm.getPot());
 }
 
 function startNextCpuTurn(currentCpuPlayer) {
@@ -442,13 +467,13 @@ function cpuCalls(currentCpuPlayer) {
   bm.addToPot(cpuCallAmount);
 
   ptq.dequeue(currentCpuPlayer);
-  ptq.enqueue(currentCpuPlayer); // To the end of queue
+  ptq.enqueue(currentCpuPlayer); // To end of queue
 
   updatePlayerStatusDOM(currentCpuPlayer, 'Call');
 
   testFunction(ptq, bm); // This is stupid
 
-  determineRound();
+  determineEndOfHand();
 }
 function cpuRaises(currentCpuPlayer) {
   if (currentCpuPlayer.getMoney() >= bm.getCurrentBet() * 5) {
@@ -466,7 +491,7 @@ function cpuFolds(currentCpuPlayer) {
 
   ptq.dequeue(currentCpuPlayer);
   currentCpuPlayer.setIsActive(false);
-  determineRound();
+  determineEndOfHand();
 }
 function cpuHasStrongHand(currentCpuPlayer) {
   const cpuPlayerFirstCard = currentCpuPlayer.getHand()[0].getValue();
@@ -653,7 +678,7 @@ confirmRaiseBtn.addEventListener('click', function () {
   ptq.dequeue(mainPlayer);
   ptq.enqueue(mainPlayer);
 
-  determineRound(ptq, bm);
+  determineEndOfHand(ptq, bm);
 });
 
 foldBtn.addEventListener('click', function () {
