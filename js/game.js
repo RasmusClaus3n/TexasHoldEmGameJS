@@ -107,23 +107,24 @@ function startNewHand() {
       console.log('You lose');
     }
 
+    clearStatuses(gsm.allPlayers);
+
     // if (gsm.allPlayers) {
     //   gsm.allPlayers.forEach((player) => {
     //     ptq.dequeue(player);
-    //     ptq.enqueue(player);
     //   });
     // }
 
+    console.log(ptq.printQueue);
+
     setAllPlayersToActive(gsm.mainPlayer, gsm.cpuPlayers);
     addActivePlayersToPTQ(gsm.mainPlayer, gsm.cpuPlayers, ptq);
-
-    clearStatuses(ptq.getAllPlayersFromQ());
 
     addMessage('New Hand!');
 
     bm.setCurrentBet(0);
 
-    gsm.stage = 0;
+    gsm.stage = 0; // Pre-flop
     gsm.comCards = [];
 
     gsm.deck = createDeck([]);
@@ -135,7 +136,7 @@ function startNewHand() {
     setHandRanks(gsm.mainPlayer, gsm.cpuPlayers, gsm.comCards);
     displayToDOM(gsm.mainPlayer, gsm.cpuPlayers, gsm.comCards);
 
-    setBlinds([ptq.getMainPlayerFromQ(), ...ptq.getCpuPlayersFromQ()], bm);
+    // setBlinds([ptq.getMainPlayerFromQ(), ...ptq.getCpuPlayersFromQ()], bm);
 
     updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
 
@@ -149,7 +150,7 @@ function determineEndOfHand() {
   setTimeout(() => {
     const currentPlayer = ptq.getCurrentPlayer();
 
-    // currentPlayer is alone
+    // currentPlayer is alone (i.e. everybody else folded)
     if (!ptq.getNextPlayer()) {
       addMessage(currentPlayer.getName() + ' win!', 'pink');
       takeMoneyFromPot(currentPlayer);
@@ -179,11 +180,11 @@ function initMainPlayerRaise(mainPlayer) {
   slider.max = mainPlayerMoney; // I.e. all in
   slider.value = slider.min; // Display money to be raised with
 
-  // Update default raiseMoneyText with min slider value
+  // Update default slider text with min slider value
   const raiseMoneyText = document.querySelector('.raise-money');
   raiseMoneyText.textContent = `$${slider.min}`;
 
-  // Updates raiseMoneyText when slider value changes
+  // Updates slider when slider value changes
   slider.addEventListener('input', function () {
     if (parseInt(this.value) === parseInt(this.max)) {
       raiseMoneyText.textContent = 'All in, baby!';
@@ -199,7 +200,7 @@ function isNoMoreCalls() {
   const playersThatCalled = ptq.getPlayersWhoHaveCalled();
   console.log('Players that have called:' + playersThatCalled.length);
 
-  if (playersThatCalled.length === ptq.getCpuPlayersFromQ().length) {
+  if (playersThatCalled.length === ptq.getAllPlayersFromQ().length) {
     return true;
   }
 
@@ -264,7 +265,7 @@ function startShowDown() {
 
   if (Array.isArray(winner)) {
     // It's a tie
-    addMessage("It's a " + winner[0].getHandRankName + ' tie between:');
+    addMessage("It's a " + winner[0].getHandRankName() + ' tie between:');
     winner.forEach((player) => {
       addMessage(player.getName());
     });
