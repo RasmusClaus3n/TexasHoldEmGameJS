@@ -11,6 +11,10 @@ class BettingManager {
     return this.pot;
   }
 
+  clearPot() {
+    this.pot = 0;
+  }
+
   setCurrentBet(amount) {
     this.currentBet = amount;
     console.log('BM says current bet is: ' + amount);

@@ -26,8 +26,6 @@ const betRaiseBtn = document.getElementById('bet-raise');
 const foldBtn = document.getElementById('fold');
 const confirmRaiseBtn = document.getElementById('confirm-raise-btn');
 
-const comCardsDiv = document.querySelector('.community-cards');
-
 const messages = [];
 
 const gsm = new GameStateManager(); // Stores players, deck and community cards
@@ -88,32 +86,10 @@ startGame(mainPlayer, cpuPlayers);
 
 function startGame(mainPlayer, cpuPlayers) {
   mainPlayer.setIsMainPlayer(true);
-  setAllPlayersToActive(mainPlayer, cpuPlayers);
-  addActivePlayersToPTQ(mainPlayer, cpuPlayers, ptq);
 
   gsm.mainPlayer = mainPlayer;
   gsm.cpuPlayers = cpuPlayers;
   gsm.setAllPlayers(mainPlayer, ...cpuPlayers);
-
-  gsm.deck = createDeck([]);
-  shuffleDeck(gsm.deck);
-
-  setMainPlayerHoleCards(ptq.getMainPlayerFromQ(), gsm.deck);
-  setCpuHoleCards(ptq.getCpuPlayersFromQ(), gsm.deck);
-
-  setHandRanks(
-    ptq.getMainPlayerFromQ(),
-    ptq.getCpuPlayersFromQ(),
-    gsm.comCards
-  );
-  displayToDOM(
-    ptq.getMainPlayerFromQ(),
-    ptq.getCpuPlayersFromQ(),
-    gsm.comCards
-  );
-
-  setBlinds([ptq.getMainPlayerFromQ(), ...ptq.getCpuPlayersFromQ()], bm);
-  updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
 
   startNewHand();
   // startMainPlayerTurn(ptq.getMainPlayerFromQ());
@@ -128,7 +104,9 @@ function startNewHand() {
       console.log('You lose');
     }
 
-    addMessage('');
+    setAllPlayersToActive(gsm.mainPlayer, gsm.cpuPlayers);
+    addActivePlayersToPTQ(gsm.mainPlayer, gsm.cpuPlayers, ptq);
+
     addMessage('New Hand!');
 
     gsm.stage = 0;
@@ -144,9 +122,29 @@ function startNewHand() {
     displayToDOM(gsm.mainPlayer, gsm.cpuPlayers, gsm.comCards);
 
     setBlinds([ptq.getMainPlayerFromQ(), ...ptq.getCpuPlayersFromQ()], bm);
+
     updateUI(ptq.getMainPlayerFromQ(), ptq.getCpuPlayersFromQ(), bm.getPot());
 
+    console.log('Pot: ' + bm.getPot());
+
     determineEndOfHand();
+  }, 1000);
+}
+
+function determineEndOfHand() {
+  setTimeout(() => {
+    const currentPlayer = ptq.getCurrentPlayer();
+
+    if (!ptq.getNextPlayer()) {
+      addMessage(currentPlayer.getName() + ' win!', 'pink');
+      takeMoneyFromPot(currentPlayer);
+      startNewHand();
+    } else if (isNoMoreCalls()) {
+      console.log('No more calls');
+      startNextStage(gsm.comCards, gsm.deck);
+    } else {
+      startNextTurn(currentPlayer);
+    }
   }, 1000);
 }
 
@@ -178,24 +176,6 @@ function initMainPlayerRaise(mainPlayer) {
       raiseMoneyText.textContent = `$${this.value}`;
     }
   });
-}
-
-function determineEndOfHand() {
-  console.log('Determening end of hand');
-  setTimeout(() => {
-    const currentPlayer = ptq.getCurrentPlayer();
-
-    if (!ptq.getNextPlayer() && currentPlayer === ptq.getMainPlayerFromQ()) {
-      addMessage(currentPlayer.getName() + ' win!', 'pink');
-    }
-
-    if (isNoMoreCalls()) {
-      console.log('No more calls');
-      startNextStage(gsm.comCards, gsm.deck);
-    } else {
-      startNextTurn(currentPlayer);
-    }
-  }, 1000);
 }
 
 function isNoMoreCalls() {
@@ -257,8 +237,6 @@ function startNextStage(comCards, deck) {
 
 // Fix
 function startShowDown() {
-  // showCpuCardsDOM()
-
   const winner = rankHandRanks(
     ptq.getMainPlayerFromQ(), // These can be null. Fix.
     ptq.getCpuPlayersFromQ()
@@ -268,12 +246,14 @@ function startShowDown() {
     addMessage("It's a tie between:");
     winner.forEach((player) => {
       addMessage(player.getName());
-      splitPot(winner);
     });
+    splitPot(winner);
   } else if (winner === ptq.getMainPlayerFromQ()) {
     addMessage(winner.getName() + ' win!!!');
+    takeMoneyFromPot(winner);
   } else {
     addMessage(winner.getName() + ' wins');
+    takeMoneyFromPot(winner);
   }
 
   startNewHand();
@@ -287,9 +267,13 @@ function splitPot(winner) {
   winner.forEach((player) => {
     player.setMoney(player.getMoney() + amountPerWinner);
   });
+
+  bm.clearPot();
 }
 function takeMoneyFromPot(winner) {
-  winner.setMoney(getMoney() + bm.getPot());
+  const pot = bm.getPot();
+  winner.setMoney(winner.getMoney() + pot);
+  bm.clearPot();
 }
 
 function startNextCpuTurn(currentCpuPlayer) {

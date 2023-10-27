@@ -3,7 +3,13 @@ import Player from '../classes/Player.js';
 let isWinner = false;
 
 function rankHandRanks(player, cpuPlayers) {
-  const allPlayers = [player, ...cpuPlayers];
+  let allPlayers;
+
+  if (player) {
+    allPlayers = [player, ...cpuPlayers];
+  } else {
+    allPlayers = cpuPlayers;
+  }
   const allHandRanks = allPlayers.map((player) => player.getHandRank());
   const highestHandRank = Math.max(...allHandRanks);
   const contenders = allPlayers.filter(
