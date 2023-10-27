@@ -89,7 +89,10 @@ function startGame(mainPlayer, cpuPlayers) {
 
   gsm.mainPlayer = mainPlayer;
   gsm.cpuPlayers = cpuPlayers;
-  gsm.setAllPlayers(mainPlayer, ...cpuPlayers);
+
+  gsm.setAllPlayers([mainPlayer, ...cpuPlayers]);
+
+  console.log(gsm.allPlayers);
 
   startNewHand();
   // startMainPlayerTurn(ptq.getMainPlayerFromQ());
@@ -104,10 +107,21 @@ function startNewHand() {
       console.log('You lose');
     }
 
+    // if (gsm.allPlayers) {
+    //   gsm.allPlayers.forEach((player) => {
+    //     ptq.dequeue(player);
+    //     ptq.enqueue(player);
+    //   });
+    // }
+
     setAllPlayersToActive(gsm.mainPlayer, gsm.cpuPlayers);
     addActivePlayersToPTQ(gsm.mainPlayer, gsm.cpuPlayers, ptq);
 
+    clearStatuses(ptq.getAllPlayersFromQ());
+
     addMessage('New Hand!');
+
+    bm.setCurrentBet(0);
 
     gsm.stage = 0;
     gsm.comCards = [];
@@ -135,12 +149,13 @@ function determineEndOfHand() {
   setTimeout(() => {
     const currentPlayer = ptq.getCurrentPlayer();
 
+    // currentPlayer is alone
     if (!ptq.getNextPlayer()) {
       addMessage(currentPlayer.getName() + ' win!', 'pink');
       takeMoneyFromPot(currentPlayer);
       startNewHand();
     } else if (isNoMoreCalls()) {
-      console.log('No more calls');
+      addMessage('No more bets');
       startNextStage(gsm.comCards, gsm.deck);
     } else {
       startNextTurn(currentPlayer);
@@ -149,7 +164,7 @@ function determineEndOfHand() {
 }
 
 function startMainPlayerTurn(mainPlayer) {
-  updatePlayerOptionsUI(); // UI changes if player can check/bet or call/raise/fold
+  // updatePlayerOptionsUI();
   if (mainPlayer.getMoney() > bm.getCurrentBet()) {
     initMainPlayerRaise(mainPlayer); // Sets main player's max and min raise values
   }
@@ -183,6 +198,10 @@ function isNoMoreCalls() {
 
   const playersThatCalled = ptq.getPlayersWhoHaveCalled();
   console.log('Players that have called:' + playersThatCalled.length);
+
+  if (playersThatCalled.length === ptq.getCpuPlayersFromQ().length) {
+    return true;
+  }
 
   if (ptq.anyPlayerHasRaised()) {
     const playersThatRaised = ptq.getPlayersWhoRaised();
@@ -237,22 +256,26 @@ function startNextStage(comCards, deck) {
 
 // Fix
 function startShowDown() {
+  addMessage('Showdown!');
   const winner = rankHandRanks(
     ptq.getMainPlayerFromQ(), // These can be null. Fix.
     ptq.getCpuPlayersFromQ()
   );
 
   if (Array.isArray(winner)) {
-    addMessage("It's a tie between:");
+    // It's a tie
+    addMessage("It's a " + winner[0].getHandRankName + ' tie between:');
     winner.forEach((player) => {
       addMessage(player.getName());
     });
     splitPot(winner);
   } else if (winner === ptq.getMainPlayerFromQ()) {
-    addMessage(winner.getName() + ' win!!!');
+    addMessage(
+      winner.getName() + ' win with a ' + winner.getHandRankName() + '!'
+    );
     takeMoneyFromPot(winner);
   } else {
-    addMessage(winner.getName() + ' wins');
+    addMessage(winner.getName() + ' wins with a ' + winner.getHandRankName());
     takeMoneyFromPot(winner);
   }
 
@@ -650,7 +673,7 @@ confirmRaiseBtn.addEventListener('click', function () {
   mainPlayer.setMoney(mainPlayerMoney - raiseAmount);
   console.log('My money:' + mainPlayer.getMoney());
 
-  addMessage(`You raised $${raiseAmount}`, 'yellow'); // Start the process
+  addMessage(`You raised $${raiseAmount}`, 'yellow');
 
   // Reset the slider value and text
   slider.value = slider.min;
@@ -666,8 +689,8 @@ confirmRaiseBtn.addEventListener('click', function () {
 });
 
 foldBtn.addEventListener('click', function () {
-  ptq.getMainPlayerFromQ().setIsActive(false);
   ptq.dequeue(ptq.getMainPlayerFromQ());
+  determineEndOfHand();
   // TBI
 });
 
