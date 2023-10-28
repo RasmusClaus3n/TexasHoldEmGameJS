@@ -108,17 +108,10 @@ function startNewHand() {
     }
 
     clearStatuses(gsm.allPlayers);
-
-    // if (gsm.allPlayers) {
-    //   gsm.allPlayers.forEach((player) => {
-    //     ptq.dequeue(player);
-    //   });
-    // }
+    ptq.clearQueue();
+    addAllPlayersToQueue(gsm.allPlayers, ptq);
 
     console.log(ptq.printQueue);
-
-    setAllPlayersToActive(gsm.mainPlayer, gsm.cpuPlayers);
-    addActivePlayersToPTQ(gsm.mainPlayer, gsm.cpuPlayers, ptq);
 
     addMessage('New Hand!');
 
@@ -327,7 +320,7 @@ function startNextCpuTurn(currentCpuPlayer) {
 }
 function setCpuBehaviour() {
   // const cpuBehaviours = ['safe', 'normal',  'aggressive', 'bluffing'];
-  const cpuBehaviours = ['safe'];
+  const cpuBehaviours = ['safe', 'bluffing'];
   const randomIndex = Math.floor(Math.random() * cpuBehaviours.length);
   const cpuBehaviour = cpuBehaviours[randomIndex];
 
@@ -434,17 +427,14 @@ function runAggressiveCpuBehaviour(currentCpuPlayer) {
   }
 }
 function runBluffingCpuBehaviour(currentCpuPlayer) {
+  const potenialMultipliers = [2, 3, 4, 5];
+  const randomIndex = Math.floor(Math.random() * potenialMultipliers.length);
+  const randomMultiplier = potenialMultipliers[randomIndex];
+  const raiseAmount = randomMultiplier * bm.getCurrentBet();
+
   switch (gsm.stage) {
     case 0: // Pre-flop
-      if (
-        cpuCanCall(currentCpuPlayer) &&
-        bm.getCurrentBet() < currentCpuPlayer.getMoney() * 0.5 &&
-        cpuHasStrongHand(currentCpuPlayer)
-      ) {
-        cpuCalls(currentCpuPlayer);
-      } else {
-        cpuFolds(currentCpuPlayer);
-      }
+      cpuRaises(currentCpuPlayer, raiseAmount);
       break;
     case 1: // Flop
       break;
@@ -483,14 +473,29 @@ function cpuCalls(currentCpuPlayer) {
 
   determineEndOfHand();
 }
-function cpuRaises(currentCpuPlayer) {
-  if (currentCpuPlayer.getMoney() >= bm.getCurrentBet() * 5) {
-    const cpuRaiseAmount = bm.getCurrentBet() * 5;
-    currentCpuPlayer.setMoney(currentCpuPlayer.getMoney() - cpuCallAmount);
-    bm.addToPot(cpuRaiseAmount);
+function cpuRaises(currentCpuPlayer, raiseAmount) {
+  currentCpuPlayer.setHasRaised(true);
+  const cpuMoney = currentCpuPlayer.getMoney();
+  const cpuName = currentCpuPlayer.getName();
+
+  if (raiseAmount > cpuMoney) {
+    currentCpuPlayer.setMoney(cpuMoney - cpuMoney);
+    bm.addToPot(cpuMoney);
+    bm.setCurrentBet(cpuMoney); // FIX THIS
+    addMessage(`${cpuName} goes all in! $${cpuMoney}`, 'rgb(248, 25, 255)');
   } else {
-    cpuFolds(currentCpuPlayer);
+    currentCpuPlayer.setMoney(cpuMoney - raiseAmount);
+    bm.addToPot(raiseAmount);
+    bm.setCurrentBet(raiseAmount);
+    addMessage(`${cpuName} raises $${raiseAmount}`, 'yellow');
   }
+
+  ptq.dequeue(currentCpuPlayer);
+  ptq.enqueue(currentCpuPlayer);
+
+  updatePlayerStatusDOM(currentCpuPlayer, 'Raise');
+  testFunction(ptq, bm); // This is stupid
+  determineEndOfHand();
 }
 function cpuFolds(currentCpuPlayer) {
   updatePlayerStatusDOM(currentCpuPlayer, 'Fold');
@@ -498,7 +503,6 @@ function cpuFolds(currentCpuPlayer) {
   addMessage(`${currentCpuPlayer.getName()} folds`, 'red');
 
   ptq.dequeue(currentCpuPlayer);
-  currentCpuPlayer.setIsActive(false);
   determineEndOfHand();
 }
 function cpuHasStrongHand(currentCpuPlayer) {
@@ -564,16 +568,9 @@ function updatePlayerOptionsUI() {
   }
 }
 
-function setAllPlayersToActive(mainPlayer, cpuPlayers) {
-  mainPlayer.setIsActive(true);
-  cpuPlayers.forEach((cpuPlayer) => cpuPlayer.setIsActive(true));
-}
-
 // Change this
-function addActivePlayersToPTQ(mainPlayer, cpuPlayers) {
-  const activePlayers = [mainPlayer, ...cpuPlayers];
-
-  activePlayers.forEach((player) => {
+function addAllPlayersToQueue(allPlayers) {
+  allPlayers.forEach((player) => {
     let isAlreadyInQueue = false;
 
     for (let i = ptq.frontIndex; i < ptq.backIndex; i++) {

@@ -11,6 +11,7 @@ class Player {
     highCard,
     pairs,
     uniquePairs,
+    status,
 
     isMainPlayer,
     isActive,
@@ -39,6 +40,7 @@ class Player {
     this.highCard = highCard;
     this.pairs = pairs;
     this.uniquePairs = uniquePairs;
+    this.status = status;
 
     this.isMainPlayer = false;
     this.isActive = true;
@@ -122,6 +124,14 @@ class Player {
   }
   setUniquePairs(uniquePairs) {
     this.uniquePairs = uniquePairs;
+  }
+
+  getStatus() {
+    return this.status;
+  }
+
+  setStatus(status) {
+    this.status = status;
   }
 
   getIsMainPlayer() {

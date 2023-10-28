@@ -25,6 +25,12 @@ class PlayerTurnQueue {
     return item;
   }
 
+  clearQueue() {
+    this.items = {};
+    this.frontIndex = 0;
+    this.backIndex = 0;
+  }
+
   getCurrentPlayer() {
     const index = this.frontIndex % this.backIndex; // Use modulo to loop
     return this.items[index];
